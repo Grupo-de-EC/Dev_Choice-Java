@@ -1,4 +1,4 @@
-package com.devchoice.devchoicejava;
+package com.devschoice;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
