@@ -1,4 +1,4 @@
-package com.devchoice.devchoicejava;
+package com.devschoice;
 
 import javafx.geometry.Insets;
 import javafx.scene.Scene;

@@ -3,6 +3,6 @@ module com.devchoice.devchoicejava {
     requires javafx.fxml;
 
 
-    opens com.devchoice.devchoicejava to javafx.fxml;
-    exports com.devchoice.devchoicejava;
+    opens com.devschoice to javafx.fxml;
+    exports com.devschoice;
 }
