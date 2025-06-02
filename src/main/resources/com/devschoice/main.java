@@ -1,22 +1,97 @@
-package com.devschoice;
+package com.devchoice.devchoicejava;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Button btn = new Button("Clique aqui!");
-        btn.setOnAction(e -> System.out.println("Botão clicado!"));
+        // Topo escuro com "Painel do Admin" e botão "Sair"
+        Label titulo = new Label("Painel do Admin");
+        titulo.setFont(new Font("Arial", 20));
+        titulo.setTextFill(Color.WHITE);
 
-        StackPane root = new StackPane(btn);
+        Button sairBtn = new Button("Sair");
+        sairBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: lightgray;");
+        sairBtn.setOnAction(e -> primaryStage.close());
 
-        Scene scene = new Scene(root, 300, 200);
-        primaryStage.setTitle("Teste JavaFX");
+        HBox topBar = new HBox(20, titulo, new Region(), sairBtn);
+        HBox.setHgrow(topBar.getChildren().get(1), Priority.ALWAYS);
+        topBar.setPadding(new Insets(15));
+        topBar.setStyle("-fx-background-color: linear-gradient(to right, #0f1f4b, #1e3d8f);");
+        topBar.setAlignment(Pos.CENTER_LEFT);
+
+        // Painel central branco
+        VBox painelCentral = new VBox(25);
+        painelCentral.setPadding(new Insets(30));
+        painelCentral.setStyle("-fx-background-color: white; -fx-background-radius: 15;");
+        painelCentral.setMaxWidth(600);
+
+        // Sessão 1 - Perfil
+        Label perfilTitulo = new Label("Perfil do Administrador");
+        perfilTitulo.setFont(new Font("Arial", 18));
+        perfilTitulo.setTextFill(Color.web("#1e3d8f"));
+
+        Label nome = new Label("Nome: Adm02");
+        Label email = new Label("Email: batatao@devschoice.com");
+
+        Button editarPerfil = new Button("Editar Perfil");
+        editarPerfil.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        editarPerfil.setOnAction(e -> {
+            Perfil perfil = new Perfil();
+            perfil.mostrarJanela();
+        });
+
+        VBox sessaoPerfil = new VBox(5, perfilTitulo, nome, email, editarPerfil);
+        sessaoPerfil.setPadding(new Insets(0, 0, 10, 0));
+
+        // Sessão 2 - Questionários
+        Label questTitulo = new Label("Gerenciar Questionários");
+        questTitulo.setFont(new Font("Arial", 18));
+        questTitulo.setTextFill(Color.web("#1e3d8f"));
+
+        Button editarQuestoes = new Button("Editar Questionários");
+        editarQuestoes.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        editarQuestoes.setOnAction(e -> {
+            formulario formulario = new formulario();
+            formulario.mostrar(new Stage());
+        });
+
+        VBox sessaoQuestoes = new VBox(5, questTitulo, editarQuestoes);
+        sessaoQuestoes.setPadding(new Insets(10, 0, 10, 0));
+
+        // Sessão 3 - Feedback
+        Label feedbackTitulo = new Label("Feedbacks dos Usuários");
+        feedbackTitulo.setFont(new Font("Arial", 18));
+        feedbackTitulo.setTextFill(Color.web("#1e3d8f"));
+
+        Label nenhumFeedback = new Label("• Nenhum feedback ainda.");
+
+        VBox sessaoFeedback = new VBox(5, feedbackTitulo, nenhumFeedback);
+        sessaoFeedback.setPadding(new Insets(10, 0, 0, 0));
+
+        // Adiciona tudo ao painel branco
+        painelCentral.getChildren().addAll(sessaoPerfil, new Separator(), sessaoQuestoes, new Separator(), sessaoFeedback);
+
+        // Centralização no fundo azul
+        StackPane centerWrapper = new StackPane(painelCentral);
+        centerWrapper.setPadding(new Insets(40));
+        centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3d8f, #2c4f99);");
+
+        BorderPane layout = new BorderPane();
+        layout.setTop(topBar);
+        layout.setCenter(centerWrapper);
+
+        Scene scene = new Scene(layout, 900, 600);
+        primaryStage.setTitle("Painel do Admin");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
