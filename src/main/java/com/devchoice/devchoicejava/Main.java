@@ -18,7 +18,15 @@ public class Main extends Application {
             perfil.mostrarJanela();
         });
 
-        StackPane root = new StackPane(btn);
+        Button abrirFormularioBtn = new Button("Abrir Editor de Formulário");
+        abrirFormularioBtn.setOnAction(e -> {
+            formulario formulario = new formulario();
+            formulario.mostrar(new Stage());
+        });
+
+        StackPane root = new StackPane(btn, abrirFormularioBtn);
+        StackPane.setMargin(btn, new javafx.geometry.Insets(0, 0, 50, 0));  // para separar os botões
+        StackPane.setMargin(abrirFormularioBtn, new javafx.geometry.Insets(50, 0, 0, 0));
 
         Scene scene = new Scene(root, 300, 200);
         primaryStage.setTitle("Teste JavaFX");
