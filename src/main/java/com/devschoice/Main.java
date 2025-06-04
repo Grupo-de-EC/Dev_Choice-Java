@@ -61,7 +61,7 @@ public class Main extends Application {
         Button editarQuestoes = new Button("Editar Questionários");
         editarQuestoes.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         editarQuestoes.setOnAction(e -> {
-            formulario formulario = new formulario();
+            Formulario formulario = new Formulario();
             formulario.mostrar(new Stage());
         });
 
@@ -69,17 +69,24 @@ public class Main extends Application {
         sessaoQuestoes.setPadding(new Insets(10, 0, 10, 0));
 
         // Sessão 3 - Feedback
-        Label feedbackTitulo = new Label("Feedbacks dos Usuários");
-        feedbackTitulo.setFont(new Font("Arial", 18));
-        feedbackTitulo.setTextFill(Color.web("#1e3d8f"));
+        Label kitsTitulo = new Label("Gerenciar Kits");
+        kitsTitulo.setFont(new Font("Arial", 18));
+        kitsTitulo.setTextFill(Color.web("#1e3d8f"));
 
-        Label nenhumFeedback = new Label("• Nenhum feedback ainda.");
+        Label kit = new Label("Nome: Java");
 
-        VBox sessaoFeedback = new VBox(5, feedbackTitulo, nenhumFeedback);
-        sessaoFeedback.setPadding(new Insets(10, 0, 0, 0));
+        Button editarKits = new Button("Editar Kits:");
+        editarKits.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        editarKits.setOnAction(e -> {
+            Kits kits = new Kits();
+            kits.mostrarJanela();
+        });
+
+        VBox sessaoKits = new VBox(5, kitsTitulo, kit, editarKits);
+        sessaoKits.setPadding(new Insets(0, 0, 10, 0));
 
         // Adiciona tudo ao painel branco
-        painelCentral.getChildren().addAll(sessaoPerfil, new Separator(), sessaoQuestoes, new Separator(), sessaoFeedback);
+        painelCentral.getChildren().addAll(sessaoPerfil, new Separator(), sessaoQuestoes, new Separator(), sessaoKits, new Separator());
 
         // Centralização no fundo azul
         StackPane centerWrapper = new StackPane(painelCentral);
