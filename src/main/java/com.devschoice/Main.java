@@ -10,7 +10,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 public class Main extends Application {
+
+    private Label kit;  // Class-level label to update kit name text
 
     @Override
     public void start(Stage primaryStage) {
@@ -68,27 +75,57 @@ public class Main extends Application {
         VBox sessaoQuestoes = new VBox(5, questTitulo, editarQuestoes);
         sessaoQuestoes.setPadding(new Insets(10, 0, 10, 0));
 
-        // Sessão 3 - Feedback
+        // Sessão 3 - Kits
         Label kitsTitulo = new Label("Gerenciar Kits");
         kitsTitulo.setFont(new Font("Arial", 18));
         kitsTitulo.setTextFill(Color.web("#1e3d8f"));
 
-        Label kit = new Label("Nome: Java");
+        // Read the last line of Kits.txt to display on label
+        String kitContent = "Nenhum kit cadastrado";  // default if no file or empty
+        try {
+            if (Files.exists(Paths.get("Kits.txt"))) {
+                List<String> lines = Files.readAllLines(Paths.get("Kits.txt"));
+                if (!lines.isEmpty()) {
+                    kitContent = lines.get(lines.size() - 1).trim();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        Button editarKits = new Button("Editar Kits:");
+        kit = new Label("Nome: " + kitContent);
+
+        Button editarKits = new Button("Editar Kits");
         editarKits.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         editarKits.setOnAction(e -> {
             Kits kits = new Kits();
+
+            // Setup listener to update label when Kits saves new content
+            kits.setOnSaveListener(new Kits.SaveListener() {
+                @Override
+                public void onSave(String newContent) {
+                    // Update label with the new saved line
+                    kit.setText("Nome: " + newContent.trim());
+                }
+            });
+
             kits.mostrarJanela();
         });
 
         VBox sessaoKits = new VBox(5, kitsTitulo, kit, editarKits);
         sessaoKits.setPadding(new Insets(0, 0, 10, 0));
 
-        // Adiciona tudo ao painel branco
-        painelCentral.getChildren().addAll(sessaoPerfil, new Separator(), sessaoQuestoes, new Separator(), sessaoKits, new Separator());
+        // Add all sections to central white panel
+        painelCentral.getChildren().addAll(
+                sessaoPerfil,
+                new Separator(),
+                sessaoQuestoes,
+                new Separator(),
+                sessaoKits,
+                new Separator()
+        );
 
-        // Centralização no fundo azul
+        // Center layout with padding and background gradient
         StackPane centerWrapper = new StackPane(painelCentral);
         centerWrapper.setPadding(new Insets(40));
         centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3d8f, #2c4f99);");
