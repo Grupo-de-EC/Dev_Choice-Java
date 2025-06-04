@@ -8,12 +8,40 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import java.util.Map;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.ArrayList;
-
 
 public class Perfil {
+    private String nome;
+    private String email;
+
+    public Perfil() {
+        carregarDados();
+    }
+
+    private void carregarDados() {
+        try {
+            List<String> linhas = Files.readAllLines(Paths.get("perfil.txt"));
+            if (linhas.size() >= 2) {
+                nome = linhas.get(0);
+                email = linhas.get(1);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void salvarDados() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("perfil.txt"))) {
+            writer.write(nome);
+            writer.newLine();
+            writer.write(email);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void mostrarJanela() {
         Stage stage = new Stage();
@@ -27,7 +55,7 @@ public class Perfil {
         // Nome
         Label nomeLabel = new Label("Nome");
         nomeLabel.setTextFill(Color.LIGHTGRAY);
-        TextField nomeField = new TextField("Adm02");
+        TextField nomeField = new TextField(nome);
         nomeField.setStyle(
                 "-fx-background-color: #2b2f3a; " +
                         "-fx-text-fill: white; " +
@@ -39,7 +67,7 @@ public class Perfil {
         // Email
         Label emailLabel = new Label("Email");
         emailLabel.setTextFill(Color.LIGHTGRAY);
-        TextField emailField = new TextField("batatao@devschoice.com");
+        TextField emailField = new TextField(email);
         emailField.setStyle(
                 "-fx-background-color: #2b2f3a; " +
                         "-fx-text-fill: white; " +
@@ -73,6 +101,15 @@ public class Perfil {
         Scene scene = new Scene(centerWrapper, 800, 600);
         stage.setTitle("Alterar Perfil");
         stage.setScene(scene);
+
+        // Ação do botão Confirmar
+        confirmarButton.setOnAction(e -> {
+            nome = nomeField.getText();
+            email = emailField.getText();
+            salvarDados();
+            stage.close();
+        });
+
         stage.show();
     }
 }

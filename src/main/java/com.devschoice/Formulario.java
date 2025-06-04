@@ -5,10 +5,39 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Formulario {
-
+    private List<String> campos;
     private VBox formArea;
+
+    public Formulario() {
+        campos = new ArrayList<>();
+        carregarDados();
+    }
+
+    private void carregarDados() {
+        try {
+            campos = Files.readAllLines(Paths.get("formulario.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void salvarDados() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("formulario.txt"))) {
+            for (String campo : campos) {
+                writer.write(campo);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void mostrar(Stage stage) {
         stage.setTitle("DevChoice - Editor de Formulário");
@@ -48,12 +77,14 @@ public class Formulario {
             campoTexto.setPromptText("Digite aqui...");
             campoTexto.setStyle(estiloCampoInput());
             formArea.getChildren().add(campoTexto);
+            campos.add(campoTexto.getText()); // Adiciona o campo à lista
         });
 
         adicionarCaixaSelecao.setOnAction(e -> {
             CheckBox checkBox = new CheckBox("Opção");
             checkBox.setStyle(estiloCheckBox());
             formArea.getChildren().add(checkBox);
+            campos.add(checkBox.getText()); // Adiciona o campo à lista
         });
 
         adicionarListaSuspensa.setOnAction(e -> {
@@ -84,13 +115,6 @@ public class Formulario {
                         setText(item);
                         setStyle("-fx-background-color: #1e293b; -fx-text-fill: #e2e8f0;");
                     }
-
-                    // Efeito ao passar o mouse (hover)
-                    listView.setOnMouseMoved(ev -> {
-                        if (listView.getSelectionModel().getSelectedItem() != null) {
-                            setStyle("-fx-background-color: #334155; -fx-text-fill: #ffffff;");
-                        }
-                    });
                 }
             });
 
@@ -110,15 +134,23 @@ public class Formulario {
             });
 
             formArea.getChildren().add(comboBox);
+            campos.add(comboBox.getPromptText()); // Adiciona o campo à lista
         });
 
-        limparFormulario.setOnAction(e -> formArea.getChildren().clear());
+        limparFormulario.setOnAction(e -> {
+            formArea.getChildren().clear();
+            campos.clear(); // Limpa a lista de campos
+        });
 
         root.setLeft(controles);
         root.setCenter(scrollPane);
 
         Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
+
+        // Salvar dados ao fechar o formulário
+        stage.setOnCloseRequest(e -> salvarDados());
+
         stage.show();
     }
 

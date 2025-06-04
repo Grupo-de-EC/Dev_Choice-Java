@@ -8,10 +8,36 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.ArrayList;
 
 public class Kits {
+    private String nomeKit;
+
+    public Kits() {
+        carregarDados();
+    }
+
+    private void carregarDados() {
+        try {
+            List<String> linhas = Files.readAllLines(Paths.get("kits.txt"));
+            if (!linhas.isEmpty()) {
+                nomeKit = linhas.get(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void salvarDados() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("kits.txt"))) {
+            writer.write(nomeKit);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void mostrarJanela() {
         Stage stage = new Stage();
@@ -25,7 +51,7 @@ public class Kits {
         // Nome
         Label kitLabel = new Label("Nome");
         kitLabel.setTextFill(Color.LIGHTGRAY);
-        TextField nomeField = new TextField("Java");
+        TextField nomeField = new TextField(nomeKit); // Use o nomeKit carregado
         nomeField.setStyle(
                 "-fx-background-color: #2b2f3a; " +
                         "-fx-text-fill: white; " +
@@ -60,6 +86,14 @@ public class Kits {
         Scene scene = new Scene(centerWrapper, 800, 600);
         stage.setTitle("Alterar Kit");
         stage.setScene(scene);
+
+        // Ação do botão Confirmar
+        confirmarButton.setOnAction(e -> {
+            nomeKit = nomeField.getText();
+            salvarDados();
+            stage.close();
+        });
+
         stage.show();
     }
 }
