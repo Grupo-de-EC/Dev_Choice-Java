@@ -6,7 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-public class formulario {
+public class Formulario {
 
     private VBox formArea;
 
