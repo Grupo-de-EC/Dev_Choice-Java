@@ -8,6 +8,10 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+
 
 public class Perfil {
 
@@ -53,6 +57,20 @@ public class Perfil {
                         "-fx-text-fill: white;"
         );
         confirmarButton.setMaxWidth(Double.MAX_VALUE);
+
+        confirmarButton.setOnAction(event -> {
+            String nome = nomeField.getText();
+            String email = emailField.getText();
+            Usuario usuario = new Usuario(nome, email);
+
+            // Recuperar os outros dados
+            Map<String, Object> dados = Persistencia.carregar();
+            Kit kit = (Kit) dados.get("kit");
+            List<FormularioItem> form = (List<FormularioItem>) dados.get("formulario");
+
+            Persistencia.salvar(usuario, kit != null ? kit : new Kit(""), form != null ? form : new ArrayList<>());
+        });
+
 
         // Painel escuro central
         VBox painelEscuro = new VBox(12, titulo, nomeLabel, nomeField, emailLabel, emailField, confirmarButton);

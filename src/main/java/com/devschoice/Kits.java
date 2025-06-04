@@ -8,6 +8,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Kits {
 
@@ -41,6 +44,18 @@ public class Kits {
                         "-fx-text-fill: white;"
         );
         confirmarButton.setMaxWidth(Double.MAX_VALUE);
+
+        confirmarButton.setOnAction(event -> {
+            Kit kit = new Kit(nomeField.getText());
+
+            // Carregar os outros dados
+            Map<String, Object> dados = Persistencia.carregar();
+            Usuario usuario = (Usuario) dados.get("usuario");
+            List<FormularioItem> form = (List<FormularioItem>) dados.get("formulario");
+
+            Persistencia.salvar(usuario != null ? usuario : new Usuario("",""), kit, form != null ? form : new ArrayList<>());
+        });
+
 
         // Painel escuro central
         VBox painelEscuro = new VBox(12, titulo, kitLabel, nomeField, confirmarButton);

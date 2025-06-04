@@ -9,12 +9,16 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import java.util.Map;
+
+
+
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Topo escuro com "Painel do Admin" e botão "Sair"
+        // NavBar
         Label titulo = new Label("Painel do Admin");
         titulo.setFont(new Font("Arial", 20));
         titulo.setTextFill(Color.WHITE);
@@ -92,6 +96,20 @@ public class Main extends Application {
         StackPane centerWrapper = new StackPane(painelCentral);
         centerWrapper.setPadding(new Insets(40));
         centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3d8f, #2c4f99);");
+
+        Map<String, Object> dados = Persistencia.carregar();
+        Usuario usuario = (Usuario) dados.get("usuario");
+        Kit kitObj = (Kit) dados.get("kit");
+
+        if (usuario != null) {
+            nome.setText("Nome: " + usuario.getNome());
+            email.setText("Email: " + usuario.getEmail());
+        }
+
+        if (kitObj != null) {
+            kit.setText("Nome: " + kitObj.getNome());
+        }
+
 
         BorderPane layout = new BorderPane();
         layout.setTop(topBar);
