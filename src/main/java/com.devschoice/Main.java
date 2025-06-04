@@ -97,20 +97,6 @@ public class Main extends Application {
         centerWrapper.setPadding(new Insets(40));
         centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3d8f, #2c4f99);");
 
-        Map<String, Object> dados = Persistencia.carregar();
-        Usuario usuario = (Usuario) dados.get("usuario");
-        Kit kitObj = (Kit) dados.get("kit");
-
-        if (usuario != null) {
-            nome.setText("Nome: " + usuario.getNome());
-            email.setText("Email: " + usuario.getEmail());
-        }
-
-        if (kitObj != null) {
-            kit.setText("Nome: " + kitObj.getNome());
-        }
-
-
         BorderPane layout = new BorderPane();
         layout.setTop(topBar);
         layout.setCenter(centerWrapper);

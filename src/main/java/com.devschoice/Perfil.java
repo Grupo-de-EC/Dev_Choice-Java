@@ -56,21 +56,6 @@ public class Perfil {
                         "-fx-background-color: linear-gradient(to right, #4a90e2, #357ae8);" +
                         "-fx-text-fill: white;"
         );
-        confirmarButton.setMaxWidth(Double.MAX_VALUE);
-
-        confirmarButton.setOnAction(event -> {
-            String nome = nomeField.getText();
-            String email = emailField.getText();
-            Usuario usuario = new Usuario(nome, email);
-
-            // Recuperar os outros dados
-            Map<String, Object> dados = Persistencia.carregar();
-            Kit kit = (Kit) dados.get("kit");
-            List<FormularioItem> form = (List<FormularioItem>) dados.get("formulario");
-
-            Persistencia.salvar(usuario, kit != null ? kit : new Kit(""), form != null ? form : new ArrayList<>());
-        });
-
 
         // Painel escuro central
         VBox painelEscuro = new VBox(12, titulo, nomeLabel, nomeField, emailLabel, emailField, confirmarButton);
