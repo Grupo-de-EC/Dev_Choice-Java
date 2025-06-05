@@ -81,7 +81,7 @@ public class Main extends Application {
         kitsTitulo.setTextFill(Color.web("#1e3d8f"));
 
         // Le a ultima linha do Kits.txt para aparecer na label
-        String kitContent = "Nenhum kit cadastrado";  // default if no file or empty
+        String kitContent = "Nenhum kit cadastrado";
         try {
             if (Files.exists(Paths.get("Kits.txt"))) {
                 List<String> lines = Files.readAllLines(Paths.get("Kits.txt"));
