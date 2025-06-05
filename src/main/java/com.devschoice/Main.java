@@ -17,7 +17,7 @@ import java.util.List;
 
 public class Main extends Application {
 
-    private Label kit;  // Class-level label to update kit name text
+    private Label kit;  // Classe label para atualizar o nome do kit
 
     @Override
     public void start(Stage primaryStage) {
@@ -80,7 +80,7 @@ public class Main extends Application {
         kitsTitulo.setFont(new Font("Arial", 18));
         kitsTitulo.setTextFill(Color.web("#1e3d8f"));
 
-        // Read the last line of Kits.txt to display on label
+        // Le a ultima linha do Kits.txt para aparecer na label
         String kitContent = "Nenhum kit cadastrado";  // default if no file or empty
         try {
             if (Files.exists(Paths.get("Kits.txt"))) {
@@ -100,7 +100,7 @@ public class Main extends Application {
         editarKits.setOnAction(e -> {
             Kits kits = new Kits();
 
-            // Setup listener to update label when Kits saves new content
+            // listener para atualizar a label quando Kits salvar novo conteúdo
             kits.setOnSaveListener(new Kits.SaveListener() {
                 @Override
                 public void onSave(String newContent) {
@@ -115,7 +115,7 @@ public class Main extends Application {
         VBox sessaoKits = new VBox(5, kitsTitulo, kit, editarKits);
         sessaoKits.setPadding(new Insets(0, 0, 10, 0));
 
-        // Add all sections to central white panel
+        // Adicionar todas as seções no painel branco
         painelCentral.getChildren().addAll(
                 sessaoPerfil,
                 new Separator(),
@@ -125,7 +125,7 @@ public class Main extends Application {
                 new Separator()
         );
 
-        // Center layout with padding and background gradient
+        // Layout central com padding e background
         StackPane centerWrapper = new StackPane(painelCentral);
         centerWrapper.setPadding(new Insets(40));
         centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3d8f, #2c4f99);");

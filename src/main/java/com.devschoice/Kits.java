@@ -34,7 +34,7 @@ public class Kits {
         TextArea textArea = new TextArea();
         textArea.setPromptText("Digite os dados dos kits aqui...");
 
-        // Load content from file
+        // Carrega o conteúdo do arquivo
         try {
             if (Files.exists(Paths.get(FILE_PATH))) {
                 List<String> lines = Files.readAllLines(Paths.get("Kits.txt"));
