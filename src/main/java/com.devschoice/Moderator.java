@@ -93,7 +93,6 @@ public class Moderator extends Application {
         VBox sessaoKits = new VBox(5, kitsTitulo, editarKits);
         sessaoKits.setPadding(new Insets(0, 0, 10, 0));
 
-
         // Adicionar todas as seções no painel branco
         painelCentral.getChildren().addAll(
                 sessaoPerfil,
