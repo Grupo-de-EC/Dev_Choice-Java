@@ -1,6 +1,5 @@
 package com.devschoice;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -11,14 +10,16 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-public class Kits extends Application {
+public class Kits {
 
-    // Modelo do Kit
+    // Modelo do Kit com categoria
     public static class Kit implements java.io.Serializable {
         private String nome;
+        private String categoria;  // NOVO campo
 
-        public Kit(String nome) {
+        public Kit(String nome, String categoria) {
             this.nome = nome;
+            this.categoria = categoria;
         }
 
         public String getNome() {
@@ -28,12 +29,28 @@ public class Kits extends Application {
         public void setNome(String nome) {
             this.nome = nome;
         }
+
+        public String getCategoria() {
+            return categoria;
+        }
+
+        public void setCategoria(String categoria) {
+            this.categoria = categoria;
+        }
+
+        @Override
+        public String toString() {
+            return nome + " (" + categoria + ")";
+        }
     }
 
     // Interface CRUD
     public static class GerenciadorKits extends VBox {
         private final ListView<String> kitListView;
         private List<Kit> kits;
+        private ComboBox<String> categoriaComboBox;  // filtro
+        private TextField nomeField;
+        private ComboBox<String> categoriaField;     // campo para adicionar/editar categoria
 
         public GerenciadorKits() {
             kits = ArquivoKits.carregarKits();
@@ -42,19 +59,45 @@ public class Kits extends Application {
             titulo.setFont(Font.font("Arial", 20));
             titulo.setStyle("-fx-text-fill: #1d4ed8; -fx-font-weight: bold;");
 
+            // ComboBox filtro para categoria (project type)
+            categoriaComboBox = new ComboBox<>();
+            categoriaComboBox.getItems().addAll("Todos", "Site ou sistema web", "Programa para desktop", "Jogo digital", "Aplicativo mobile", "Análise de dados / IA", "Projeto com hardware / IoT", "Outros");
+            categoriaComboBox.setValue("Todos");  // valor padrão
+            categoriaComboBox.valueProperty().addListener((obs, oldVal, newVal) -> atualizarLista());
+
             kitListView = new ListView<>();
+            kitListView.setPrefHeight(200);
             atualizarLista();
 
-            TextField nomeField = new TextField();
+            // Campos para nome e categoria do kit (para adicionar/editar)
+            nomeField = new TextField();
             nomeField.setPromptText("Nome do kit");
+
+            categoriaField = new ComboBox<>();
+            categoriaField.getItems().addAll("Site ou sistema web", "Programa para desktop", "Jogo digital", "Aplicativo mobile", "Análise de dados / IA", "Projeto com hardware / IoT", "Outros");
+            categoriaField.setPromptText("Categoria");
+
+            // Quando selecionar um item na lista, carregar os dados nos campos
+            kitListView.getSelectionModel().selectedIndexProperty().addListener((obs, oldIndex, newIndex) -> {
+                int index = newIndex.intValue();
+                if (index >= 0 && index < kits.size()) {
+                    Kit kit = kits.get(index);
+                    nomeField.setText(kit.getNome());
+                    categoriaField.setValue(kit.getCategoria());
+                }
+            });
 
             Button adicionarBtn = new Button("Adicionar");
             adicionarBtn.setOnAction(e -> {
                 String nome = nomeField.getText().trim();
-                if (!nome.isEmpty()) {
-                    kits.add(new Kit(nome));
+                String categoria = categoriaField.getValue();
+                if (!nome.isEmpty() && categoria != null) {
+                    kits.add(new Kit(nome, categoria));
                     salvarEAtualizar();
                     nomeField.clear();
+                    categoriaField.setValue(null);
+                } else {
+                    alertAviso("Preencha o nome e selecione uma categoria.");
                 }
             });
 
@@ -63,9 +106,14 @@ public class Kits extends Application {
                 int index = kitListView.getSelectionModel().getSelectedIndex();
                 if (index >= 0) {
                     String novoNome = nomeField.getText().trim();
-                    if (!novoNome.isEmpty()) {
-                        kits.get(index).setNome(novoNome);
+                    String novaCategoria = categoriaField.getValue();
+                    if (!novoNome.isEmpty() && novaCategoria != null) {
+                        Kit kitSelecionado = kits.get(index);
+                        kitSelecionado.setNome(novoNome);
+                        kitSelecionado.setCategoria(novaCategoria);
                         salvarEAtualizar();
+                    } else {
+                        alertAviso("Preencha o nome e selecione uma categoria.");
                     }
                 }
             });
@@ -76,16 +124,21 @@ public class Kits extends Application {
                 if (index >= 0) {
                     kits.remove(index);
                     salvarEAtualizar();
+                    nomeField.clear();
+                    categoriaField.setValue(null);
                 }
             });
 
             HBox botoes = new HBox(10, adicionarBtn, editarBtn, excluirBtn);
             botoes.setAlignment(Pos.CENTER);
 
+            HBox campos = new HBox(10, nomeField, categoriaField);
+            campos.setAlignment(Pos.CENTER);
+
             VBox.setVgrow(kitListView, Priority.ALWAYS);
             this.setSpacing(10);
             this.setPadding(new Insets(20));
-            this.getChildren().addAll(titulo, kitListView, nomeField, botoes);
+            this.getChildren().addAll(titulo, categoriaComboBox, kitListView, campos, botoes);
             this.setStyle("-fx-background-color: #f0f4f8; -fx-background-radius: 10;");
         }
 
@@ -96,28 +149,31 @@ public class Kits extends Application {
 
         private void atualizarLista() {
             kitListView.getItems().clear();
+            String filtro = categoriaComboBox.getValue();
             for (Kit kit : kits) {
-                kitListView.getItems().add(kit.getNome());
+                if ("Todos".equals(filtro) || kit.getCategoria().equals(filtro)) {
+                    kitListView.getItems().add(kit.getNome() + " (" + kit.getCategoria() + ")");
+                }
             }
         }
 
-        // Método estático para abrir a janela de gerenciamento
+        private void alertAviso(String mensagem) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Aviso");
+            alert.setHeaderText(null);
+            alert.setContentText(mensagem);
+            alert.showAndWait();
+        }
+
+        // Método estático para abrir a janela de gerenciamento — pode continuar, se quiser
         public static void mostrarJanela() {
             Stage stage = new Stage();
             GerenciadorKits gerenciador = new GerenciadorKits();
             Scene scene = new Scene(gerenciador, 600, 400);
-            stage.setTitle("CRUD de Kits");
+            stage.setTitle("Gerenciador de Kits");
             stage.setScene(scene);
             stage.show();
         }
     }
 
-    @Override
-    public void start(Stage stage) {
-        GerenciadorKits.mostrarJanela();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 }
