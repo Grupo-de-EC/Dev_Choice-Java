@@ -13,34 +13,35 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class Perfil {
+public class Perfil implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String nome;
     private String email;
 
     public Perfil() {
-        carregarDados();
     }
 
+    public Perfil(String nome, String email) {
+        this.nome = nome;
+        this.email = email;
+    }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+
     private void carregarDados() {
-        try {
-            List<String> linhas = Files.readAllLines(Paths.get("perfil.txt"));
-            if (linhas.size() >= 2) {
-                nome = linhas.get(0);
-                email = linhas.get(1);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Perfil perfilCarregado = ArquivoPerfil.lerPerfil();
+        this.nome = perfilCarregado.getNome();
+        this.email = perfilCarregado.getEmail();
     }
 
     private void salvarDados() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("perfil.txt"))) {
-            writer.write(nome);
-            writer.newLine();
-            writer.write(email);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ArquivoPerfil.salvarPerfil(this);
     }
 
     public void mostrarJanela() {

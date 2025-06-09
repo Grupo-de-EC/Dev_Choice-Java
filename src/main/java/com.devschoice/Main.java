@@ -47,14 +47,22 @@ public class Main extends Application {
         perfilTitulo.setFont(new Font("Arial", 18));
         perfilTitulo.setTextFill(Color.web("#1e3d8f"));
 
+        Perfil perfil = ArquivoPerfil.lerPerfil();
+
         Label nome = new Label("Nome: Adm02");
         Label email = new Label("Email: batatao@devschoice.com");
 
         Button editarPerfil = new Button("Editar Perfil");
         editarPerfil.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         editarPerfil.setOnAction(e -> {
-            Perfil perfil = new Perfil();
+            Perfil editar = new Perfil();
             perfil.mostrarJanela();
+        });
+
+        editarPerfil.getScene().getWindow().setOnHidden(event -> {
+            Perfil atualizado = ArquivoPerfil.lerPerfil();
+            nome.setText("Nome: " + (atualizado.getNome() != null ? atualizado.getNome() : "Desconhecido"));
+            email.setText("Email: " + (atualizado.getEmail() != null ? atualizado.getEmail() : "Desconhecido"));
         });
 
         VBox sessaoPerfil = new VBox(5, perfilTitulo, nome, email, editarPerfil);
