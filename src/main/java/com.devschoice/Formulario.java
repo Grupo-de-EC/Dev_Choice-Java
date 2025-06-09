@@ -49,54 +49,60 @@ public class Formulario {
         scrollPane.setStyle("-fx-background: transparent; -fx-padding: 10;");
 
         // Adiciona questões fixas
-        adicionarQuestaoFixa("Nome completo:");
-        adicionarQuestaoFixa("Idade:");
-        adicionarQuestaoFixa("Qual linguagem você prefere?");
-        adicionarQuestaoFixa("Experiência em desenvolvimento (anos):");
+        adicionarQuestaoFixa("Nome do seu projeto:");
+        adicionarQuestaoFixa("Nivel de Experiencia:");
+        adicionarQuestaoFixa("Tipo do Projeto:");
 
         adicionarCampoTexto.setOnAction(e -> {
-            TextField campoTexto = new TextField();
-            campoTexto.setPromptText("Digite aqui...");
-            campoTexto.setStyle(estiloCampoInput());
-            formArea.getChildren().add(campoTexto);
+            String titulo = solicitarTitulo("Campo de Texto");
+            if (titulo != null && !titulo.trim().isEmpty()) {
+                Label label = new Label(titulo);
+                label.setStyle(estiloTituloPergunta());
+                TextField campoTexto = new TextField();
+                campoTexto.setPromptText("Digite aqui...");
+                campoTexto.setStyle(estiloCampoInput());
+                formArea.getChildren().addAll(label, campoTexto);
+            }
         });
 
         adicionarCaixaSelecao.setOnAction(e -> {
-            CheckBox checkBox = new CheckBox("Opção");
-            checkBox.setStyle(estiloCheckBox());
-            formArea.getChildren().add(checkBox);
+            String titulo = solicitarTitulo("Caixa de Seleção");
+            if (titulo != null && !titulo.trim().isEmpty()) {
+                Label label = new Label(titulo);
+                label.setStyle(estiloTituloPergunta());
+                CheckBox checkBox = new CheckBox("Opção");
+                checkBox.setStyle(estiloCheckBox());
+                formArea.getChildren().addAll(label, checkBox);
+            }
         });
 
         adicionarListaSuspensa.setOnAction(e -> {
-            ComboBox<String> comboBox = new ComboBox<>();
-            comboBox.getItems().addAll("Opção 1", "Opção 2", "Opção 3");
-            comboBox.setPromptText("Selecione uma opção");
-            comboBox.setStyle(estiloComboBox());
-            comboBox.setCellFactory(listView -> new ListCell<>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty || item == null ? null : item);
-                    setStyle("-fx-background-color: #1e293b; -fx-text-fill: #e2e8f0;");
-                }
-            });
-            comboBox.setButtonCell(new ListCell<>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty || item == null ? comboBox.getPromptText() : item);
-                    setStyle("-fx-text-fill: #e2e8f0; -fx-background-color: #1e293b;");
-                }
-            });
-            formArea.getChildren().add(comboBox);
-        });
-
-        limparFormulario.setOnAction(e -> {
-            formArea.getChildren().clear();
-            adicionarQuestaoFixa("Nome completo:");
-            adicionarQuestaoFixa("Idade:");
-            adicionarQuestaoFixa("Qual linguagem você prefere?");
-            adicionarQuestaoFixa("Experiência em desenvolvimento (anos):");
+            String titulo = solicitarTitulo("Lista Suspensa");
+            if (titulo != null && !titulo.trim().isEmpty()) {
+                Label label = new Label(titulo);
+                label.setStyle(estiloTituloPergunta());
+                ComboBox<String> comboBox = new ComboBox<>();
+                comboBox.getItems().addAll("Opção 1", "Opção 2", "Opção 3");
+                comboBox.setPromptText("Selecione uma opção");
+                comboBox.setStyle(estiloComboBox());
+                comboBox.setCellFactory(listView -> new ListCell<>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        setText(empty || item == null ? null : item);
+                        setStyle("-fx-background-color: #1e293b; -fx-text-fill: #e2e8f0;");
+                    }
+                });
+                comboBox.setButtonCell(new ListCell<>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        setText(empty || item == null ? comboBox.getPromptText() : item);
+                        setStyle("-fx-text-fill: #e2e8f0; -fx-background-color: #1e293b;");
+                    }
+                });
+                formArea.getChildren().addAll(label, comboBox);
+            }
         });
 
         salvarFormulario.setOnAction(e -> salvarDados());
@@ -109,9 +115,17 @@ public class Formulario {
         stage.show();
     }
 
+    private String solicitarTitulo(String tipoCampo) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Novo Campo");
+        dialog.setHeaderText("Digite o título da nova pergunta:");
+        dialog.setContentText("Título para " + tipoCampo + ":");
+        return dialog.showAndWait().orElse(null);
+    }
+
     private void adicionarQuestaoFixa(String labelTexto) {
         Label label = new Label(labelTexto);
-        label.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 14px;");
+        label.setStyle(estiloTituloPergunta());
         TextField campo = new TextField();
         campo.setPromptText(labelTexto);
         campo.setStyle(estiloCampoInput());
@@ -191,5 +205,12 @@ public class Formulario {
                 + "-fx-border-color: transparent; "
                 + "-fx-focus-color: #3b82f6; "
                 + "-fx-faint-focus-color: transparent;";
+    }
+
+    private String estiloTituloPergunta() {
+        return "-fx-text-fill: #e2e8f0; "
+                + "-fx-font-size: 16px; "
+                + "-fx-font-weight: bold; "
+                + "-fx-padding: 4 0 2 0;";
     }
 }
