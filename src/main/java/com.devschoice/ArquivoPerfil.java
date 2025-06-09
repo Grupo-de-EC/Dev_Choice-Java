@@ -1,29 +1,54 @@
 package com.devschoice;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArquivoPerfil {
-    private static final String CAMINHO_ARQUIVO = "perfil.dat";
+    private static final String ARQUIVO = "perfis.dat";
+    private static final String ARQUIVO_PERFIL = "perfil_atual.dat";
 
-    public static void salvarPerfil(Perfil perfil) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CAMINHO_ARQUIVO))) {
-            oos.writeObject(perfil);
-            System.out.println("Perfil salvo com sucesso.");
+    // Salvar lista de perfis
+    public static void salvarPerfis(List<Perfil> perfis) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARQUIVO))) {
+            oos.writeObject(perfis);
         } catch (IOException e) {
-            System.err.println("Erro ao salvar perfil: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    public static Perfil lerPerfil() {
-        Perfil perfil = new Perfil();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(CAMINHO_ARQUIVO))) {
-            perfil = (Perfil) ois.readObject();
-        } catch (FileNotFoundException e) {
-            System.out.println("Arquivo de perfil não encontrado. Usando perfil padrão.");
+    // Ler lista de perfis
+    public static List<Perfil> lerPerfis() {
+        File f = new File(ARQUIVO);
+        if (!f.exists()) return new ArrayList<>();
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+            return (List<Perfil>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Erro ao ler perfil: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        return perfil;
+    }
+
+    // Salvar perfil individual
+    public static void salvarPerfil(Perfil perfil) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARQUIVO_PERFIL))) {
+            oos.writeObject(perfil);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Ler perfil individual
+    public static Perfil lerPerfil() {
+        File f = new File(ARQUIVO_PERFIL);
+        if (!f.exists()) return new Perfil(); // perfil vazio
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+            return (Perfil) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new Perfil();
+        }
     }
 }
-

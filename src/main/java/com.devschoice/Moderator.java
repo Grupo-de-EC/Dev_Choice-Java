@@ -9,6 +9,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import java.util.List;
+
 
 public class Moderator extends Application {
 
@@ -38,29 +40,140 @@ public class Moderator extends Application {
         painelCentral.setMaxWidth(600);
 
         // Sessão 1 - Perfil
-        Label perfilTitulo = new Label("Perfil do Administrador");
+
+        Label perfilTitulo = new Label("Perfis");
         perfilTitulo.setFont(new Font("Arial", 18));
         perfilTitulo.setTextFill(Color.web("#1e3d8f"));
 
-        Perfil perfil = ArquivoPerfil.lerPerfil();
+        Button criarNovoPerfilBtn = new Button("Criar Novo Perfil");
+        criarNovoPerfilBtn.setStyle("-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;");
 
-        Label nome = new Label("Nome: Adm02");
-        Label email = new Label("Email: batatao@devschoice.com");
+        HBox botoesPerfil = new HBox(10, criarNovoPerfilBtn);
+        botoesPerfil.setAlignment(Pos.CENTER_LEFT);
 
-        Button editarPerfil = new Button("Editar Perfil");
-        editarPerfil.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
-        editarPerfil.setOnAction(e -> {
-            Perfil perfilEditar = new Perfil();
-            perfilEditar.setPerfilChangeListener(() -> {
-                // Recarrega perfil e atualiza labels
-                Perfil atualizado = ArquivoPerfil.lerPerfil();
-                nome.setText("Nome: " + (atualizado.getNome() != null ? atualizado.getNome() : "Desconhecido"));
-                email.setText("Email: " + (atualizado.getEmail() != null ? atualizado.getEmail() : "Desconhecido"));
-            });
-            perfilEditar.mostrarJanela();
+        // ListView para navbar lateral
+        ListView<Perfil> listaPerfis = new ListView<>();
+        listaPerfis.setPrefWidth(250);
+
+        // Painel direito para edição do perfil selecionado
+        VBox painelEdicao = new VBox(10);
+        painelEdicao.setPadding(new Insets(10));
+        painelEdicao.setStyle("-fx-background-color: #f0f0f0;");
+
+        // Adiciona um botão "Editar Perfil" no painel de edição para confirmar alterações
+        Button confirmarBtn = new Button("Confirmar Alteração");
+        confirmarBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        Button excluirBtn = new Button("Excluir Perfil");
+        excluirBtn.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        HBox botoesEdicao = new HBox(10, confirmarBtn, excluirBtn);
+
+        // Layout: painel com lista e painel edição sempre visíveis lado a lado
+        BorderPane painelEditarPerfis = new BorderPane();
+        painelEditarPerfis.setLeft(listaPerfis);
+        painelEditarPerfis.setCenter(painelEdicao);
+        painelEditarPerfis.setPadding(new Insets(10));
+        painelEditarPerfis.setPrefHeight(300);
+        painelEditarPerfis.setStyle("-fx-border-color: rgba(100, 100, 150, 0.3); -fx-border-width: 1; -fx-background-color: white; -fx-background-radius: 10;");
+
+        // Atualiza lista de perfis com mensagem caso vazio
+        Runnable atualizarListaPerfis = () -> {
+            List<Perfil> perfis = ArquivoPerfil.lerPerfis();
+            listaPerfis.getItems().clear();
+
+            if (perfis.isEmpty()) {
+                // Limpa a lista e desabilita o ListView
+                listaPerfis.setDisable(true);
+                painelEdicao.getChildren().setAll(new Label("Nenhum perfil salvo"));
+            } else {
+                listaPerfis.setDisable(false);
+                listaPerfis.getItems().setAll(perfis);
+                painelEdicao.getChildren().clear();
+                painelEdicao.getChildren().add(new Label("Nenhum perfil selecionado"));
+                listaPerfis.getSelectionModel().selectFirst();
+            }
+        };
+
+        atualizarListaPerfis.run();
+
+        listaPerfis.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Perfil item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                    setDisable(false);
+                } else {
+                    setText(item.getNome());
+                    if ("Nenhum perfil salvo".equals(item.getNome())) {
+                        setDisable(true);
+                    } else {
+                        setDisable(false);
+                    }
+                }
+            }
         });
 
-        VBox sessaoPerfil = new VBox(5, perfilTitulo, nome, email, editarPerfil);
+        // Evento criar novo perfil
+        criarNovoPerfilBtn.setOnAction(e -> {
+            Perfil.mostrarJanelaCriarNovoPerfil(() -> {
+                atualizarListaPerfis.run();
+            });
+        });
+
+        // Evento seleção perfil na lista
+        listaPerfis.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            painelEdicao.getChildren().clear();
+
+            if (newSel == null) {
+                painelEdicao.getChildren().add(new Label("Nenhum perfil selecionado"));
+                return;
+            }
+
+            String nomeOriginal = newSel.getNome();
+
+            TextField nomeField = new TextField(newSel.getNome());
+            TextField emailField = new TextField(newSel.getEmail());
+
+            confirmarBtn.setOnAction(ev -> {
+                String novoNome = nomeField.getText().trim();
+                String novoEmail = emailField.getText().trim();
+
+                List<Perfil> perfis = ArquivoPerfil.lerPerfis();
+
+                for (int i = 0; i < perfis.size(); i++) {
+                    if (perfis.get(i).getNome().equals(nomeOriginal)) {  // compara pelo nome original
+                        perfis.get(i).setNome(novoNome);
+                        perfis.get(i).setEmail(novoEmail);
+                        break;
+                    }
+                }
+
+                ArquivoPerfil.salvarPerfis(perfis);
+                atualizarListaPerfis.run();
+            });
+
+
+            excluirBtn.setOnAction(ev -> {
+                List<Perfil> perfis = ArquivoPerfil.lerPerfis();
+                perfis.removeIf(p -> p.equals(newSel));
+                ArquivoPerfil.salvarPerfis(perfis);
+                atualizarListaPerfis.run();
+            });
+
+            painelEdicao.getChildren().addAll(
+                    new Label("Nome:"), nomeField,
+                    new Label("Email:"), emailField,
+                    new HBox(10, confirmarBtn, excluirBtn)
+            );
+        });
+
+        atualizarListaPerfis.run();
+
+        // Layout final: sessão perfil com título, botões e painel de perfis e edição
+        VBox sessaoPerfil = new VBox(10, perfilTitulo, botoesPerfil, painelEditarPerfis);
+        sessaoPerfil.setPadding(new Insets(10));
+
         sessaoPerfil.setPadding(new Insets(0, 0, 10, 0));
 
         // Sessão 2 - Questionários
