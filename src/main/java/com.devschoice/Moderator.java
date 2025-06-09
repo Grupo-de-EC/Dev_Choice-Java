@@ -10,17 +10,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+public class Moderator extends Application {
 
-public class Main extends Application {
-
-    private Label kit;  // Classe label para atualizar o nome do kit
 
     @Override
     public void start(Stage primaryStage) {
+
         // NavBar
         Label titulo = new Label("Painel do Admin");
         titulo.setFont(new Font("Arial", 20));
@@ -88,39 +83,14 @@ public class Main extends Application {
         kitsTitulo.setFont(new Font("Arial", 18));
         kitsTitulo.setTextFill(Color.web("#1e3d8f"));
 
-        // Le a ultima linha do Kits.txt para aparecer na label
-        String kitContent = "Nenhum kit cadastrado";
-        try {
-            if (Files.exists(Paths.get("Kits.txt"))) {
-                List<String> lines = Files.readAllLines(Paths.get("Kits.txt"));
-                if (!lines.isEmpty()) {
-                    kitContent = lines.get(lines.size() - 1).trim();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        kit = new Label("Nome: " + kitContent);
-
         Button editarKits = new Button("Editar Kits");
         editarKits.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         editarKits.setOnAction(e -> {
             Kits kits = new Kits();
-
-            // listener para atualizar a label quando Kits salvar novo conteúdo
-            kits.setOnSaveListener(new Kits.SaveListener() {
-                @Override
-                public void onSave(String newContent) {
-                    // Update label with the new saved line
-                    kit.setText("Nome: " + newContent.trim());
-                }
-            });
-
             kits.mostrarJanela();
         });
 
-        VBox sessaoKits = new VBox(5, kitsTitulo, kit, editarKits);
+        VBox sessaoKits = new VBox(5, kitsTitulo, editarKits);
         sessaoKits.setPadding(new Insets(0, 0, 10, 0));
 
         // Adicionar todas as seções no painel branco
