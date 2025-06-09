@@ -1,99 +1,123 @@
 package com.devschoice;
 
+import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
 import java.util.List;
 
-public class Kits {
-    private String nomeKit;
+public class Kits extends Application {
 
-    public Kits() {
-        carregarDados();
+    // Modelo do Kit
+    public static class Kit implements java.io.Serializable {
+        private String nome;
+
+        public Kit(String nome) {
+            this.nome = nome;
+        }
+
+        public String getNome() {
+            return nome;
+        }
+
+        public void setNome(String nome) {
+            this.nome = nome;
+        }
     }
 
-    private void carregarDados() {
-        try {
-            List<String> linhas = Files.readAllLines(Paths.get("kits.txt"));
-            if (!linhas.isEmpty()) {
-                nomeKit = linhas.get(0);
+    // Interface CRUD
+    public static class GerenciadorKits extends VBox {
+        private final ListView<String> kitListView;
+        private List<Kit> kits;
+
+        public GerenciadorKits() {
+            kits = ArquivoKits.carregarKits();
+
+            Label titulo = new Label("Gerenciar Kits");
+            titulo.setFont(Font.font("Arial", 20));
+            titulo.setStyle("-fx-text-fill: #1d4ed8; -fx-font-weight: bold;");
+
+            kitListView = new ListView<>();
+            atualizarLista();
+
+            TextField nomeField = new TextField();
+            nomeField.setPromptText("Nome do kit");
+
+            Button adicionarBtn = new Button("Adicionar");
+            adicionarBtn.setOnAction(e -> {
+                String nome = nomeField.getText().trim();
+                if (!nome.isEmpty()) {
+                    kits.add(new Kit(nome));
+                    salvarEAtualizar();
+                    nomeField.clear();
+                }
+            });
+
+            Button editarBtn = new Button("Editar");
+            editarBtn.setOnAction(e -> {
+                int index = kitListView.getSelectionModel().getSelectedIndex();
+                if (index >= 0) {
+                    String novoNome = nomeField.getText().trim();
+                    if (!novoNome.isEmpty()) {
+                        kits.get(index).setNome(novoNome);
+                        salvarEAtualizar();
+                    }
+                }
+            });
+
+            Button excluirBtn = new Button("Excluir");
+            excluirBtn.setOnAction(e -> {
+                int index = kitListView.getSelectionModel().getSelectedIndex();
+                if (index >= 0) {
+                    kits.remove(index);
+                    salvarEAtualizar();
+                }
+            });
+
+            HBox botoes = new HBox(10, adicionarBtn, editarBtn, excluirBtn);
+            botoes.setAlignment(Pos.CENTER);
+
+            VBox.setVgrow(kitListView, Priority.ALWAYS);
+            this.setSpacing(10);
+            this.setPadding(new Insets(20));
+            this.getChildren().addAll(titulo, kitListView, nomeField, botoes);
+            this.setStyle("-fx-background-color: #f0f4f8; -fx-background-radius: 10;");
+        }
+
+        private void salvarEAtualizar() {
+            ArquivoKits.salvarKits(kits);
+            atualizarLista();
+        }
+
+        private void atualizarLista() {
+            kitListView.getItems().clear();
+            for (Kit kit : kits) {
+                kitListView.getItems().add(kit.getNome());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+
+        // Método estático para abrir a janela de gerenciamento
+        public static void mostrarJanela() {
+            Stage stage = new Stage();
+            GerenciadorKits gerenciador = new GerenciadorKits();
+            Scene scene = new Scene(gerenciador, 600, 400);
+            stage.setTitle("CRUD de Kits");
+            stage.setScene(scene);
+            stage.show();
         }
     }
 
-    private void salvarDados() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("kits.txt"))) {
-            writer.write(nomeKit);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void start(Stage stage) {
+        GerenciadorKits.mostrarJanela();
     }
 
-    public void mostrarJanela() {
-        Stage stage = new Stage();
-
-        // Título
-        Label titulo = new Label("Alterar Dados");
-        titulo.setFont(new Font("Arial", 24));
-        titulo.setTextFill(Color.WHITE);
-        titulo.setPadding(new Insets(0, 0, 10, 0));
-
-        // Nome
-        Label kitLabel = new Label("Nome");
-        kitLabel.setTextFill(Color.LIGHTGRAY);
-        TextField nomeField = new TextField(nomeKit); // Use o nomeKit carregado
-        nomeField.setStyle(
-                "-fx-background-color: #2b2f3a; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-border-radius: 5; " +
-                        "-fx-background-radius: 5;"
-        );
-        nomeField.setMaxWidth(Double.MAX_VALUE);
-
-        // Botão Confirmar
-        Button confirmarButton = new Button("Confirmar Mudança");
-        confirmarButton.setStyle(
-                "-fx-background-radius: 8;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-color: linear-gradient(to right, #4a90e2, #357ae8);" +
-                        "-fx-text-fill: white;"
-        );
-        confirmarButton.setMaxWidth(Double.MAX_VALUE);
-
-        // Painel escuro central
-        VBox painelEscuro = new VBox(12, titulo, kitLabel, nomeField, confirmarButton);
-        painelEscuro.setAlignment(Pos.CENTER);
-        painelEscuro.setPadding(new Insets(30));
-        painelEscuro.setStyle("-fx-background-color: #141927; -fx-background-radius: 15;");
-        painelEscuro.setMaxWidth(400);
-
-        // Wrapper para centralizar
-        StackPane centerWrapper = new StackPane(painelEscuro);
-        centerWrapper.setPadding(new Insets(40));
-        centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #0f1f4b, #1e3d8f);");
-
-        // Cena final
-        Scene scene = new Scene(centerWrapper, 800, 600);
-        stage.setTitle("Alterar Kit");
-        stage.setScene(scene);
-
-        // Ação do botão Confirmar
-        confirmarButton.setOnAction(e -> {
-            nomeKit = nomeField.getText();
-            salvarDados();
-            stage.close();
-        });
-
-        stage.show();
+    public static void main(String[] args) {
+        launch(args);
     }
-} 
+}

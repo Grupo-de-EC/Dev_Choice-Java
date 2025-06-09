@@ -82,16 +82,23 @@ public class Moderator extends Application {
         Label kitsTitulo = new Label("Gerenciar Kits");
         kitsTitulo.setFont(new Font("Arial", 18));
         kitsTitulo.setTextFill(Color.web("#1e3d8f"));
+        kitsTitulo.setStyle("-fx-font-weight: bold;");
 
         Button editarKits = new Button("Editar Kits");
-        editarKits.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        editarKits.setStyle(
+                "-fx-background-color: linear-gradient(to right, #4a90e2, #357ae8);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 8;"
+        );
         editarKits.setOnAction(e -> {
             Kits kits = new Kits();
-            kits.mostrarJanela();
+            Kits.GerenciadorKits.mostrarJanela();
         });
 
-        VBox sessaoKits = new VBox(5, kitsTitulo, editarKits);
-        sessaoKits.setPadding(new Insets(0, 0, 10, 0));
+        VBox sessaoKits = new VBox(10, kitsTitulo, editarKits);
+        sessaoKits.setAlignment(Pos.CENTER_LEFT);
+        sessaoKits.setPadding(new Insets(20, 0, 0, 0));
 
         // Adicionar todas as seções no painel branco
         painelCentral.getChildren().addAll(
