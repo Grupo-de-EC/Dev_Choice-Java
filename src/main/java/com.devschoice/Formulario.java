@@ -1,223 +1,128 @@
-// Pacote onde está localizada a classe
 package com.devschoice;
 
-// Importações necessárias do JavaFX e bibliotecas de arquivos
+import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import java.io.*;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
-// Classe que representa o editor de formulário
-public class Formulario {
-    // Lista para armazenar os campos adicionados no formulário
-    private List<String> campos;
+public class Main extends Application {
 
-    // Área visual onde os campos do formulário serão exibidos
-    private VBox formArea;
+    private Label kit;  // Classe label para atualizar o nome do kit
 
-    // Construtor da classe: inicializa a lista e carrega dados salvos
-    public Formulario() {
-        campos = new ArrayList<>();
-        carregarDados();
-    }
+    @Override
+    public void start(Stage primaryStage) {
+        // NavBar
+        Label titulo = new Label("Painel do Admin");
+        titulo.setFont(new Font("Arial", 20));
+        titulo.setTextFill(Color.WHITE);
 
-    // Método para carregar os dados do formulário salvos em arquivo
-    private void carregarDados() {
+        Button sairBtn = new Button("Sair");
+        sairBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: lightgray;");
+        sairBtn.setOnAction(e -> primaryStage.close());
+
+        HBox topBar = new HBox(20, titulo, new Region(), sairBtn);
+        HBox.setHgrow(topBar.getChildren().get(1), Priority.ALWAYS);
+        topBar.setPadding(new Insets(15));
+        topBar.setStyle("-fx-background-color: linear-gradient(to right, #0f1f4b, #1e3d8f);");
+        topBar.setAlignment(Pos.CENTER_LEFT);
+
+        // Painel central branco
+        VBox painelCentral = new VBox(25);
+        painelCentral.setPadding(new Insets(30));
+        painelCentral.setStyle("-fx-background-color: white; -fx-background-radius: 15;");
+        painelCentral.setMaxWidth(600);
+
+
+        // Sessão 2 - Questionários
+        Label questTitulo = new Label("Gerenciar Questionários");
+        questTitulo.setFont(new Font("Arial", 18));
+        questTitulo.setTextFill(Color.web("#1e3d8f"));
+
+        Button editarQuestoes = new Button("Editar Questionários");
+        editarQuestoes.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        editarQuestoes.setOnAction(e -> {
+            Formulario formulario = new Formulario();
+            formulario.mostrar(new Stage());
+        });
+
+        VBox sessaoQuestoes = new VBox(5, questTitulo, editarQuestoes);
+        sessaoQuestoes.setPadding(new Insets(10, 0, 10, 0));
+
+        // Sessão 3 - Kits
+        Label kitsTitulo = new Label("Gerenciar Kits");
+        kitsTitulo.setFont(new Font("Arial", 18));
+        kitsTitulo.setTextFill(Color.web("#1e3d8f"));
+
+        // Le a ultima linha do Kits.txt para aparecer na label
+        String kitContent = "Nenhum kit cadastrado";
         try {
-            campos = Files.readAllLines(Paths.get("formulario.txt"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Método para salvar os dados atuais do formulário no arquivo
-    private void salvarDados() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("formulario.txt"))) {
-            for (String campo : campos) {
-                writer.write(campo);
-                writer.newLine();
+            if (Files.exists(Paths.get("Kits.txt"))) {
+                List<String> lines = Files.readAllLines(Paths.get("Kits.txt"));
+                if (!lines.isEmpty()) {
+                    kitContent = lines.get(lines.size() - 1).trim();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
 
-    // Método principal que monta a interface do editor de formulário
-    public void mostrar(Stage stage) {
-        stage.setTitle("DevChoice - Editor de Formulário");
+        kit = new Label("Nome: " + kitContent);
 
-        // Layout principal da janela
-        BorderPane root = new BorderPane();
+        Button editarKits = new Button("Editar Kits");
+        editarKits.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        editarKits.setOnAction(e -> {
+            Kits kits = new Kits();
 
-        // Caixa lateral com os botões de controle
-        VBox controles = new VBox(10);
-        controles.setPadding(new Insets(20));
-        controles.setStyle("-fx-background-color: rgba(15,23,42,0.9); "
-                + "-fx-border-radius: 16px; "
-                + "-fx-background-radius: 16px; "
-                + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 4);");
-
-        // Botões de adicionar campos ao formulário
-        Button adicionarCampoTexto = criarBotao("Adicionar Campo de Texto");
-        Button adicionarCaixaSelecao = criarBotao("Adicionar Caixa de Seleção");
-        Button adicionarListaSuspensa = criarBotao("Adicionar Lista Suspensa");
-        Button limparFormulario = criarBotao("Limpar Formulário");
-
-        // Adiciona os botões à caixa lateral
-        controles.getChildren().addAll(adicionarCampoTexto, adicionarCaixaSelecao, adicionarListaSuspensa, limparFormulario);
-
-        // Área principal onde os campos serão inseridos
-        formArea = new VBox(10);
-        formArea.setPadding(new Insets(20));
-        formArea.setStyle("-fx-border-color: #334155; -fx-border-width: 2px; "
-                + "-fx-background-color: rgba(15,23,42,0.9); "
-                + "-fx-border-radius: 16px; -fx-background-radius: 16px; "
-                + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 4);");
-
-        // Área de rolagem para o formulário (caso tenha muitos campos)
-        ScrollPane scrollPane = new ScrollPane(formArea);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: transparent; -fx-padding: 10;");
-
-        // Evento para adicionar campo de texto
-        adicionarCampoTexto.setOnAction(e -> {
-            TextField campoTexto = new TextField();
-            campoTexto.setPromptText("Digite aqui...");
-            campoTexto.setStyle(estiloCampoInput());
-            formArea.getChildren().add(campoTexto);
-            campos.add(campoTexto.getText()); // Adiciona o conteúdo à lista
-        });
-
-        // Evento para adicionar caixa de seleção (CheckBox)
-        adicionarCaixaSelecao.setOnAction(e -> {
-            CheckBox checkBox = new CheckBox("Opção");
-            checkBox.setStyle(estiloCheckBox());
-            formArea.getChildren().add(checkBox);
-            campos.add(checkBox.getText()); // Adiciona o conteúdo à lista
-        });
-
-        // Evento para adicionar lista suspensa (ComboBox)
-        adicionarListaSuspensa.setOnAction(e -> {
-            ComboBox<String> comboBox = new ComboBox<>();
-            comboBox.getItems().addAll("Opção 1", "Opção 2", "Opção 3");
-            comboBox.setPromptText("Selecione uma opção");
-
-            // Estiliza o ComboBox principal
-            comboBox.setStyle("-fx-background-color: #1e293b; "
-                    + "-fx-text-fill: #e2e8f0; "
-                    + "-fx-prompt-text-fill: #94a3b8; "
-                    + "-fx-padding: 8px; "
-                    + "-fx-font-size: 14px; "
-                    + "-fx-border-radius: 8px; -fx-background-radius: 8px; "
-                    + "-fx-border-color: transparent; "
-                    + "-fx-focus-color: #3b82f6; "
-                    + "-fx-faint-focus-color: transparent;");
-
-            // Estilo dos itens da lista suspensa
-            comboBox.setCellFactory(listView -> new ListCell<String>() {
+            // listener para atualizar a label quando Kits salvar novo conteúdo
+            kits.setOnSaveListener(new Kits.SaveListener() {
                 @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setStyle("");
-                    } else {
-                        setText(item);
-                        setStyle("-fx-background-color: #1e293b; -fx-text-fill: #e2e8f0;");
-                    }
+                public void onSave(String newContent) {
+                    // Update label with the new saved line
+                    kit.setText("Nome: " + newContent.trim());
                 }
             });
 
-            // Estilo da célula selecionada
-            comboBox.setButtonCell(new ListCell<String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(comboBox.getPromptText());
-                        setStyle("-fx-text-fill: #94a3b8; -fx-background-color: #1e293b;");
-                    } else {
-                        setText(item);
-                        setStyle("-fx-text-fill: #e2e8f0; -fx-background-color: #1e293b;");
-                    }
-                }
-            });
-
-            formArea.getChildren().add(comboBox);
-            campos.add(comboBox.getPromptText()); // Adiciona à lista
+            kits.mostrarJanela();
         });
 
-        // Evento para limpar o formulário
-        limparFormulario.setOnAction(e -> {
-            formArea.getChildren().clear();
-            campos.clear(); // Limpa a lista de campos
-        });
+        VBox sessaoKits = new VBox(5, kitsTitulo, kit, editarKits);
+        sessaoKits.setPadding(new Insets(0, 0, 10, 0));
 
-        // Define o layout principal da tela
-        root.setLeft(controles);
-        root.setCenter(scrollPane);
+        // Adicionar todas as seções no painel branco
+        painelCentral.getChildren().addAll(
+                new Separator(),
+                sessaoQuestoes,
+                new Separator(),
+                sessaoKits,
+                new Separator()
+        );
 
-        // Cria a cena e define no palco
-        Scene scene = new Scene(root, 800, 600);
-        stage.setScene(scene);
+        // Layout central com padding e background
+        StackPane centerWrapper = new StackPane(painelCentral);
+        centerWrapper.setPadding(new Insets(40));
+        centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3d8f, #2c4f99);");
 
-        // Salva os dados quando a janela for fechada
-        stage.setOnCloseRequest(e -> salvarDados());
+        BorderPane layout = new BorderPane();
+        layout.setTop(topBar);
+        layout.setCenter(centerWrapper);
 
-        // Exibe a janela
-        stage.show();
+        Scene scene = new Scene(layout, 900, 600);
+        primaryStage.setTitle("Painel do Admin");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
-    // Método auxiliar para criar botões com estilo personalizado
-    private Button criarBotao(String texto) {
-        Button botao = new Button(texto);
-        botao.setPrefWidth(200);
-        botao.setStyle("-fx-background-color: linear-gradient(to right, #3b82f6, #2563eb); "
-                + "-fx-text-fill: white; "
-                + "-fx-font-weight: bold; "
-                + "-fx-padding: 10px; "
-                + "-fx-border-radius: 8px; "
-                + "-fx-background-radius: 8px; "
-                + "-fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);");
-
-        // Efeito ao passar o mouse
-        botao.setOnMouseEntered(e -> botao.setStyle("-fx-background-color: linear-gradient(to right, #2563eb, #1e40af); "
-                + "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px; "
-                + "-fx-border-radius: 8px; -fx-background-radius: 8px; -fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0, 0, 3);"));
-
-        // Efeito ao remover o mouse
-        botao.setOnMouseExited(e -> botao.setStyle("-fx-background-color: linear-gradient(to right, #3b82f6, #2563eb); "
-                + "-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px; "
-                + "-fx-border-radius: 8px; -fx-background-radius: 8px; -fx-cursor: hand; "
-                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);"));
-
-        return botao;
-    }
-
-    // Método auxiliar que retorna o estilo CSS para campos de texto
-    private String estiloCampoInput() {
-        return "-fx-background-color: #1e293b; "
-                + "-fx-text-fill: #e2e8f0; "
-                + "-fx-prompt-text-fill: #94a3b8; "
-                + "-fx-padding: 12px; "
-                + "-fx-font-size: 14px; "
-                + "-fx-border-radius: 8px; -fx-background-radius: 8px; "
-                + "-fx-border-color: transparent; "
-                + "-fx-focus-color: #3b82f6; "
-                + "-fx-faint-focus-color: transparent;";
-    }
-
-    // Método auxiliar que retorna o estilo CSS para caixas de seleção (CheckBox)
-    private String estiloCheckBox() {
-        return "-fx-text-fill: #e2e8f0; "
-                + "-fx-font-size: 14px;";
+    public static void main(String[] args) {
+        launch(args);
     }
 }
