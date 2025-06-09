@@ -9,9 +9,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
 
 public class Perfil implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -44,8 +41,22 @@ public class Perfil implements Serializable {
         ArquivoPerfil.salvarPerfil(this);
     }
 
+    public interface PerfilChangeListener {
+        void onPerfilChanged();
+    }
+
+    private transient PerfilChangeListener listener;
+
+
+    public void setPerfilChangeListener(PerfilChangeListener listener) {
+        this.listener = listener;
+    }
+
+
     public void mostrarJanela() {
         Stage stage = new Stage();
+
+
 
         // Título
         Label titulo = new Label("Alterar Dados");
@@ -108,6 +119,9 @@ public class Perfil implements Serializable {
             nome = nomeField.getText();
             email = emailField.getText();
             salvarDados();
+            if (listener != null) {
+                listener.onPerfilChanged();
+            }
             stage.close();
         });
 

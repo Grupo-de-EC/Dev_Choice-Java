@@ -55,14 +55,14 @@ public class Main extends Application {
         Button editarPerfil = new Button("Editar Perfil");
         editarPerfil.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         editarPerfil.setOnAction(e -> {
-            Perfil editar = new Perfil();
-            perfil.mostrarJanela();
-        });
-
-        editarPerfil.getScene().getWindow().setOnHidden(event -> {
-            Perfil atualizado = ArquivoPerfil.lerPerfil();
-            nome.setText("Nome: " + (atualizado.getNome() != null ? atualizado.getNome() : "Desconhecido"));
-            email.setText("Email: " + (atualizado.getEmail() != null ? atualizado.getEmail() : "Desconhecido"));
+            Perfil perfilEditar = new Perfil();
+            perfilEditar.setPerfilChangeListener(() -> {
+                // Recarrega perfil e atualiza labels
+                Perfil atualizado = ArquivoPerfil.lerPerfil();
+                nome.setText("Nome: " + (atualizado.getNome() != null ? atualizado.getNome() : "Desconhecido"));
+                email.setText("Email: " + (atualizado.getEmail() != null ? atualizado.getEmail() : "Desconhecido"));
+            });
+            perfilEditar.mostrarJanela();
         });
 
         VBox sessaoPerfil = new VBox(5, perfilTitulo, nome, email, editarPerfil);
