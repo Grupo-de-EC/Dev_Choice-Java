@@ -1,79 +1,99 @@
 package com.devschoice;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class Kits {
+    private String nomeKit;
 
-    private static final String FILE_PATH = "Kits.txt";
-
-    public interface SaveListener {
-        void onSave(String newContent);
+    public Kits() {
+        carregarDados();
     }
 
-    private SaveListener saveListener;
-
-    public void setOnSaveListener(SaveListener listener) {
-        this.saveListener = listener;
-    }
-
-    public void mostrarJanela() {
-        Stage stage = new Stage();
-        stage.setTitle("Editor de Kits");
-
-        TextArea textArea = new TextArea();
-        textArea.setPromptText("Digite os dados dos kits aqui...");
-
-        // Carrega o conteúdo do arquivo
+    private void carregarDados() {
         try {
-            if (Files.exists(Paths.get(FILE_PATH))) {
-                List<String> lines = Files.readAllLines(Paths.get("Kits.txt"));
-                String lastLine = lines.isEmpty() ? "" : lines.get(lines.size() - 1);
-                textArea.setText(lastLine);
+            List<String> linhas = Files.readAllLines(Paths.get("kits.txt"));
+            if (!linhas.isEmpty()) {
+                nomeKit = linhas.get(0);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        Button salvarBtn = new Button("Salvar");
-        salvarBtn.setOnAction(e -> {
-            String newContent = textArea.getText().trim();
+    private void salvarDados() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("kits.txt"))) {
+            writer.write(nomeKit);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            if (!newContent.isEmpty()) {
-                try {
-                    Files.write(Paths.get(FILE_PATH),
-                            (newContent + System.lineSeparator()).getBytes(),
-                            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    public void mostrarJanela() {
+        Stage stage = new Stage();
 
-                    System.out.println("Arquivo salvo com sucesso.");
+        // Título
+        Label titulo = new Label("Alterar Dados");
+        titulo.setFont(new Font("Arial", 24));
+        titulo.setTextFill(Color.WHITE);
+        titulo.setPadding(new Insets(0, 0, 10, 0));
 
-                    if (saveListener != null) {
-                        saveListener.onSave(newContent);
-                    }
+        // Nome
+        Label kitLabel = new Label("Nome");
+        kitLabel.setTextFill(Color.LIGHTGRAY);
+        TextField nomeField = new TextField(nomeKit); // Use o nomeKit carregado
+        nomeField.setStyle(
+                "-fx-background-color: #2b2f3a; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-border-radius: 5; " +
+                        "-fx-background-radius: 5;"
+        );
+        nomeField.setMaxWidth(Double.MAX_VALUE);
 
-                    textArea.clear();
+        // Botão Confirmar
+        Button confirmarButton = new Button("Confirmar Mudança");
+        confirmarButton.setStyle(
+                "-fx-background-radius: 8;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-color: linear-gradient(to right, #4a90e2, #357ae8);" +
+                        "-fx-text-fill: white;"
+        );
+        confirmarButton.setMaxWidth(Double.MAX_VALUE);
 
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
+        // Painel escuro central
+        VBox painelEscuro = new VBox(12, titulo, kitLabel, nomeField, confirmarButton);
+        painelEscuro.setAlignment(Pos.CENTER);
+        painelEscuro.setPadding(new Insets(30));
+        painelEscuro.setStyle("-fx-background-color: #141927; -fx-background-radius: 15;");
+        painelEscuro.setMaxWidth(400);
+
+        // Wrapper para centralizar
+        StackPane centerWrapper = new StackPane(painelEscuro);
+        centerWrapper.setPadding(new Insets(40));
+        centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #0f1f4b, #1e3d8f);");
+
+        // Cena final
+        Scene scene = new Scene(centerWrapper, 800, 600);
+        stage.setTitle("Alterar Kit");
+        stage.setScene(scene);
+
+        // Ação do botão Confirmar
+        confirmarButton.setOnAction(e -> {
+            nomeKit = nomeField.getText();
+            salvarDados();
+            stage.close();
         });
 
-        VBox layout = new VBox(10, textArea, salvarBtn);
-        layout.setPadding(new Insets(20));
-
-        Scene scene = new Scene(layout, 600, 400);
-        stage.setScene(scene);
         stage.show();
     }
-}
+} 
