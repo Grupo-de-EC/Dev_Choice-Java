@@ -11,8 +11,17 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class Index extends Application {
+public class KitsPage extends Application {
+
+    // Simulação: categorias permitidas a partir do questionário (substitua com o resultado real)
+    private Set<String> categoriasPermitidas = Set.of(
+            "Site ou sistema web",
+            "Aplicativo mobile"
+            // Pode adicionar outras categorias conforme respostas do usuário
+    );
 
     @Override
     public void start(Stage primaryStage) {
@@ -32,7 +41,7 @@ public class Index extends Application {
         topBar.setAlignment(Pos.CENTER_LEFT);
 
         // Título da seção de kits
-        Label sectionTitle = new Label("Kits mais utilizados");
+        Label sectionTitle = new Label("Kits recomendados para você");
         sectionTitle.setFont(new Font("Segoe UI", 20));
         sectionTitle.setStyle("-fx-font-weight: bold;");
         sectionTitle.setTextFill(Color.web("#1d4ed8"));
@@ -41,15 +50,20 @@ public class Index extends Application {
         VBox kitList = new VBox(10);
         kitList.setPadding(new Insets(10));
 
-        List<Kits.Kit> kits = ArquivoKits.carregarKits();
+        List<Kits.Kit> todosKits = ArquivoKits.carregarKits();
 
-        if (kits.isEmpty()) {
-            Label vazio = new Label("Nenhum kit cadastrado.");
+        // Filtrar kits pela categoria permitida
+        List<Kits.Kit> kitsFiltrados = todosKits.stream()
+                .filter(kit -> categoriasPermitidas.contains(kit.getCategoria()))
+                .collect(Collectors.toList());
+
+        if (kitsFiltrados.isEmpty()) {
+            Label vazio = new Label("Nenhum kit disponível para as suas necessidades baseadas no questionário.");
             vazio.setFont(new Font("Segoe UI", 14));
             vazio.setTextFill(Color.GRAY);
             kitList.getChildren().add(vazio);
         } else {
-            for (Kits.Kit kit : kits) {
+            for (Kits.Kit kit : kitsFiltrados) {
                 Label kitLabel = new Label(kit.getNome());
                 kitLabel.setStyle(
                         "-fx-background-color: #f1f5f9;" +
