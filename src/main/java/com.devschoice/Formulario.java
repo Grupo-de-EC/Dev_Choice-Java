@@ -1,9 +1,11 @@
 package com.devschoice;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -15,8 +17,6 @@ import java.util.Optional;
 public class Formulario {
     private VBox formArea;
     private boolean modoEdicaoAtivo = false;
-
-    public Formulario() {}
 
     public void mostrar(Stage stage) {
         stage.setTitle("DevChoice - Editor de Formulário");
@@ -35,9 +35,9 @@ public class Formulario {
         Button adicionarCampoTexto = criarBotao("Adicionar Campo de Texto");
         Button adicionarCaixaSelecao = criarBotao("Adicionar Caixa de Seleção");
         Button adicionarListaSuspensa = criarBotao("Adicionar Lista Suspensa");
-        Button limparFormulario = criarBotao("Limpar Formulário");
-        Button salvarFormulario = criarBotao("Salvar");
         Button editarQuestao = criarBotao("Editar Questão");
+        Button salvarFormulario = criarBotao("Salvar");
+        Button limparFormulario = criarBotao("Limpar Formulário");
 
         controles.getChildren().addAll(
                 adicionarCampoTexto,
@@ -63,7 +63,6 @@ public class Formulario {
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent; -fx-padding: 10;");
 
-        // Adiciona questões fixas com estilo antigo
         adicionarQuestaoFixaTexto("Nome do seu projeto:");
         adicionarQuestaoFixaCombo("Nivel de Experiencia:", new String[]{"Iniciante", "Intermediário", "Avançado"});
         adicionarQuestaoFixaCombo("Tipo do Projeto:", new String[]{"web", "mobile", "desktop", "iot", "jogo", "analise", "outros"});
@@ -96,12 +95,6 @@ public class Formulario {
         editarQuestao.setOnAction(e -> {
             modoEdicaoAtivo = !modoEdicaoAtivo;
             editarQuestao.setText(modoEdicaoAtivo ? "Sair do Modo Edição" : "Editar Questão");
-
-            if (modoEdicaoAtivo) {
-                ativarModoEdicao();
-            } else {
-                desativarModoEdicao();
-            }
         });
 
         root.setLeft(controles);
@@ -112,172 +105,134 @@ public class Formulario {
         stage.show();
     }
 
-    private void ativarModoEdicao() {
-        for (javafx.scene.Node node : formArea.getChildren()) {
-            if (node instanceof Label label) {
-                label.setStyle(estiloTituloPergunta() + "-fx-border-color: yellow; -fx-border-width: 1px; -fx-cursor: hand;");
-                label.setOnMouseClicked(event -> {
-                    if (modoEdicaoAtivo) {
-                        editarPergunta(label);
-                    }
-                });
-            }
-        }
-    }
-
-    private void desativarModoEdicao() {
-        for (javafx.scene.Node node : formArea.getChildren()) {
-            if (node instanceof Label label) {
-                label.setStyle(estiloTituloPergunta());
-                label.setOnMouseClicked(null);
-            }
-        }
-    }
-
-    private void editarPergunta(Label label) {
-        int index = formArea.getChildren().indexOf(label);
-        if (index == -1 || index + 1 >= formArea.getChildren().size()) return;
-
-        javafx.scene.Node campo = formArea.getChildren().get(index + 1);
-
-        // Diálogo para editar título
-        TextInputDialog dialogTitulo = new TextInputDialog(label.getText());
-        dialogTitulo.setTitle("Editar Título da Pergunta");
-        dialogTitulo.setHeaderText("Edite o título da pergunta:");
-        dialogTitulo.setContentText("Título:");
-        Optional<String> novoTituloOpt = dialogTitulo.showAndWait();
-
-        if (novoTituloOpt.isEmpty()) return;
-        String novoTitulo = novoTituloOpt.get().trim();
-        if (novoTitulo.isEmpty()) return;
-
-        // Diálogo para escolher tipo do campo
-        ChoiceDialog<String> dialogTipo = new ChoiceDialog<>(obterTipoCampo(campo),
-                "texto", "checkbox", "combo");
-        dialogTipo.setTitle("Editar Tipo do Campo");
-        dialogTipo.setHeaderText("Selecione o novo tipo do campo:");
-        dialogTipo.setContentText("Tipo:");
-
-        Optional<String> novoTipoOpt = dialogTipo.showAndWait();
-        if (novoTipoOpt.isEmpty()) return;
-        String novoTipo = novoTipoOpt.get();
-
-        label.setText(novoTitulo);
-
-        formArea.getChildren().remove(campo);
-
-        switch (novoTipo) {
-            case "texto" -> {
-                TextField novoCampo = new TextField();
-                novoCampo.setPromptText("Digite aqui...");
-                novoCampo.setStyle(estiloCampoInput());
-                formArea.getChildren().add(index + 1, novoCampo);
-            }
-            case "checkbox" -> {
-                CheckBox novoCampo = new CheckBox("Opção");
-                novoCampo.setStyle(estiloCheckBox());
-                formArea.getChildren().add(index + 1, novoCampo);
-            }
-            case "combo" -> {
-                ComboBox<String> novoCampo = new ComboBox<>();
-                novoCampo.getItems().addAll("Opção 1", "Opção 2", "Opção 3");
-                novoCampo.setPromptText("Selecione uma opção");
-                novoCampo.setStyle(estiloComboBox());
-                formArea.getChildren().add(index + 1, novoCampo);
-            }
-            default -> {
-                formArea.getChildren().add(index + 1, campo);
-            }
-        }
-    }
-
-    private String obterTipoCampo(javafx.scene.Node campo) {
-        if (campo instanceof TextField) return "texto";
-        if (campo instanceof CheckBox) return "checkbox";
-        if (campo instanceof ComboBox) return "combo";
-        return "texto";
-    }
-
     private void adicionarPergunta(String titulo, String tipo, String[] opcoes) {
         Label label = new Label(titulo);
         label.setStyle(estiloTituloPergunta());
 
-        switch (tipo) {
+        javafx.scene.Node campo = switch (tipo) {
             case "texto" -> {
-                TextField campoTexto = new TextField();
-                campoTexto.setPromptText("Digite aqui...");
-                campoTexto.setStyle(estiloCampoInput());
-                formArea.getChildren().addAll(label, campoTexto);
+                TextField t = new TextField();
+                t.setPromptText("Digite aqui...");
+                t.setStyle(estiloCampoInput());
+                yield t;
             }
             case "checkbox" -> {
-                CheckBox checkBox = new CheckBox("Opção");
-                checkBox.setStyle(estiloCheckBox());
-                formArea.getChildren().addAll(label, checkBox);
+                CheckBox cb = new CheckBox("Opção");
+                cb.setStyle(estiloCheckBox());
+                yield cb;
             }
             case "combo" -> {
-                ComboBox<String> comboBox = new ComboBox<>();
-                if (opcoes != null) {
-                    comboBox.getItems().addAll(opcoes);
-                } else {
-                    comboBox.getItems().addAll("Opção 1", "Opção 2", "Opção 3");
-                }
-                comboBox.setPromptText("Selecione uma opção");
-                comboBox.setStyle(estiloComboBox());
-                formArea.getChildren().addAll(label, comboBox);
+                ComboBox<String> combo = new ComboBox<>();
+                combo.getItems().addAll(opcoes != null ? opcoes : new String[]{"Opção 1", "Opção 2", "Opção 3"});
+                combo.setPromptText("Selecione uma opção");
+                combo.setStyle(estiloComboBox());
+                yield combo;
             }
-        }
+            default -> new TextField();
+        };
+
+        VBox grupo = criarLinhaPergunta(label, campo, tipo);
+        formArea.getChildren().add(grupo);
     }
 
-    private String solicitarTitulo(String tipoCampo) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Novo Campo");
-        dialog.setHeaderText("Digite o título da nova pergunta:");
-        dialog.setContentText("Título para " + tipoCampo + ":");
-        return dialog.showAndWait().orElse(null);
+    private VBox criarLinhaPergunta(Label label, javafx.scene.Node campo, String tipoAtual) {
+        label.setOnMouseClicked(event -> {
+            if (modoEdicaoAtivo) {
+                TextInputDialog dialog = new TextInputDialog(label.getText());
+                dialog.setTitle("Editar Pergunta");
+                dialog.setHeaderText("Editar o título da pergunta:");
+                dialog.setContentText("Novo título:");
+                Optional<String> resultado = dialog.showAndWait();
+                resultado.ifPresent(novoTitulo -> {
+                    if (!novoTitulo.trim().isEmpty()) {
+                        label.setText(novoTitulo);
+                    }
+                });
+
+                ChoiceDialog<String> tipoDialog = new ChoiceDialog<>(tipoAtual, "texto", "checkbox", "combo");
+                tipoDialog.setTitle("Editar Tipo");
+                tipoDialog.setHeaderText("Escolha o novo tipo de campo:");
+                tipoDialog.setContentText("Tipo:");
+
+                Optional<String> novoTipo = tipoDialog.showAndWait();
+                novoTipo.ifPresent(tipo -> {
+                    int index = formArea.getChildren().indexOf(label.getParent().getParent());
+                    if (index >= 0) {
+                        formArea.getChildren().remove(index);
+
+                        String[] opcoes = null;
+                        if (tipo.equals("combo")) {
+                            TextInputDialog opcoesDialog = new TextInputDialog("Opção 1, Opção 2, Opção 3");
+                            opcoesDialog.setTitle("Editar Opções");
+                            opcoesDialog.setHeaderText("Digite as novas opções separadas por vírgula:");
+                            opcoesDialog.setContentText("Opções:");
+
+                            Optional<String> resultadoOpcoes = opcoesDialog.showAndWait();
+                            if (resultadoOpcoes.isPresent()) {
+                                String texto = resultadoOpcoes.get();
+                                opcoes = texto.split("\\s*,\\s*");
+                            }
+                        }
+
+                        adicionarPergunta(label.getText(), tipo, opcoes);
+                    }
+                });
+            }
+        });
+
+        ImageView icone = new ImageView(new Image("file:src/main/Imagens/lixeira.png"));
+        icone.setFitWidth(16);
+        icone.setFitHeight(16);
+        Button deletar = new Button("", icone);
+        deletar.setStyle("-fx-background-color: transparent; -fx-font-size: 16px;");
+        deletar.setOnAction(e -> formArea.getChildren().remove(((Button) e.getSource()).getParent().getParent()));
+
+        HBox topo = new HBox(10, label, deletar);
+        topo.setPadding(new Insets(0, 0, 4, 0));
+        topo.setStyle("-fx-alignment: center-left;");
+
+        return new VBox(4, topo, campo);
     }
 
-    private void adicionarQuestaoFixaTexto(String labelTexto) {
-        Label label = new Label(labelTexto);
+    private void adicionarQuestaoFixaTexto(String titulo) {
+        Label label = new Label(titulo);
         label.setStyle(estiloTituloPergunta());
         TextField campo = new TextField();
-        campo.setPromptText(labelTexto);
+        campo.setPromptText(titulo);
         campo.setStyle(estiloCampoInput());
-        formArea.getChildren().addAll(label, campo);
+        formArea.getChildren().add(criarLinhaPergunta(label, campo, "texto"));
     }
 
-    private void adicionarQuestaoFixaCombo(String labelTexto, String[] opcoes) {
-        Label label = new Label(labelTexto);
+    private void adicionarQuestaoFixaCombo(String titulo, String[] opcoes) {
+        Label label = new Label(titulo);
         label.setStyle(estiloTituloPergunta());
-
-        ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getItems().addAll(opcoes);
-        comboBox.setPromptText("Selecione uma opção");
-        comboBox.setStyle(estiloComboBox());
-        formArea.getChildren().addAll(label, comboBox);
+        ComboBox<String> combo = new ComboBox<>();
+        combo.getItems().addAll(opcoes);
+        combo.setPromptText("Selecione uma opção");
+        combo.setStyle(estiloComboBox());
+        formArea.getChildren().add(criarLinhaPergunta(label, combo, "combo"));
     }
 
     private void salvarDados() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("formulario.dat"))) {
             List<String> dados = new ArrayList<>();
-
-            for (javafx.scene.Node node : formArea.getChildren()) {
-                if (node instanceof TextField textField) {
-                    dados.add("Texto: " + textField.getText());
-                } else if (node instanceof CheckBox checkBox) {
-                    dados.add("Checkbox: " + checkBox.isSelected());
-                } else if (node instanceof ComboBox<?> comboBox) {
-                    Object selecionado = comboBox.getSelectionModel().getSelectedItem();
-                    dados.add("Combo: " + (selecionado == null ? "" : selecionado.toString()));
+            for (javafx.scene.Node grupo : formArea.getChildren()) {
+                if (grupo instanceof VBox vbox && vbox.getChildren().size() >= 2) {
+                    javafx.scene.Node campo = vbox.getChildren().get(1);
+                    if (campo instanceof TextField textField) {
+                        dados.add("Texto: " + textField.getText());
+                    } else if (campo instanceof CheckBox checkBox) {
+                        dados.add("Checkbox: " + checkBox.isSelected());
+                    } else if (campo instanceof ComboBox<?> comboBox) {
+                        Object selecionado = comboBox.getSelectionModel().getSelectedItem();
+                        dados.add("Combo: " + (selecionado == null ? "" : selecionado.toString()));
+                    }
                 }
             }
             oos.writeObject(dados);
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Formulário salvo com sucesso!", ButtonType.OK);
-            alert.showAndWait();
-
+            new Alert(Alert.AlertType.INFORMATION, "Formulário salvo com sucesso!").showAndWait();
         } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Erro ao salvar formulário: " + e.getMessage(), ButtonType.OK);
-            alert.showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Erro ao salvar: " + e.getMessage()).showAndWait();
         }
     }
 
@@ -308,19 +263,23 @@ public class Formulario {
     }
 
     private String estiloComboBox() {
-        return "-fx-background-color: linear-gradient(to bottom, #3b82f6, #2563eb);" + // azul vibrante degradê
+        return "-fx-background-color: linear-gradient(to bottom, #3b82f6, #2563eb);" +
                 "-fx-border-radius: 12;" +
                 "-fx-background-radius: 12;" +
-                "-fx-text-fill: #f0f9ff;" +        // texto quase branco, suave
+                "-fx-text-fill: #f0f9ff;" +
                 "-fx-font-size: 14px;" +
                 "-fx-font-weight: 600;" +
                 "-fx-padding: 6 15 6 15;" +
                 "-fx-border-color: #1e40af;" +
                 "-fx-border-width: 2;" +
-                "-fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.6), 8, 0, 0, 2);" + // sombra azul
-                "-fx-cursor: hand;" +
-                "-fx-transition: all 0.3s ease;" +
-                "-fx-focus-color: #60a5fa;" +
-                "-fx-faint-focus-color: transparent;";
+                "-fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.6), 8, 0, 0, 2);";
+    }
+
+    private String solicitarTitulo(String tipoCampo) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Novo Campo");
+        dialog.setHeaderText("Digite o título da nova pergunta:");
+        dialog.setContentText("Título para " + tipoCampo + ":");
+        return dialog.showAndWait().orElse(null);
     }
 }

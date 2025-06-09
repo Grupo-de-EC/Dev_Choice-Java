@@ -46,7 +46,7 @@ public class Moderator extends Application {
         perfilTitulo.setTextFill(Color.web("#1e3d8f"));
 
         Button criarNovoPerfilBtn = new Button("Criar Novo Perfil");
-        criarNovoPerfilBtn.setStyle("-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;");
+        criarNovoPerfilBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
 
         HBox botoesPerfil = new HBox(10, criarNovoPerfilBtn);
         botoesPerfil.setAlignment(Pos.CENTER_LEFT);
