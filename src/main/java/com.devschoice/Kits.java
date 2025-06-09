@@ -47,10 +47,10 @@ public class Kits {
     // Interface CRUD
     public static class GerenciadorKits extends VBox {
         private final ListView<String> kitListView;
-        private List<Kit> kits;
-        private ComboBox<String> categoriaComboBox;  // filtro
-        private TextField nomeField;
-        private ComboBox<String> categoriaField;     // campo para adicionar/editar categoria
+        private final List<Kit> kits;
+        private final ComboBox<String> categoriaComboBox;  // filtro
+        private final TextField nomeField;
+        private final ComboBox<String> categoriaField;     // campo para adicionar/editar categoria
 
         public GerenciadorKits() {
             kits = ArquivoKits.carregarKits();
@@ -97,7 +97,7 @@ public class Kits {
                     nomeField.clear();
                     categoriaField.setValue(null);
                 } else {
-                    alertAviso("Preencha o nome e selecione uma categoria.");
+                    alertAviso();
                 }
             });
 
@@ -113,7 +113,7 @@ public class Kits {
                         kitSelecionado.setCategoria(novaCategoria);
                         salvarEAtualizar();
                     } else {
-                        alertAviso("Preencha o nome e selecione uma categoria.");
+                        alertAviso();
                     }
                 }
             });
@@ -157,11 +157,11 @@ public class Kits {
             }
         }
 
-        private void alertAviso(String mensagem) {
+        private void alertAviso() {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Aviso");
             alert.setHeaderText(null);
-            alert.setContentText(mensagem);
+            alert.setContentText("Preencha o nome e selecione uma categoria.");
             alert.showAndWait();
         }
 
