@@ -51,6 +51,8 @@ public class Kits {
         private final ComboBox<String> categoriaComboBox;  // filtro
         private final TextField nomeField;
         private final ComboBox<String> categoriaField;     // campo para adicionar/editar categoria
+        private List<Kit> kitsFiltrados = new java.util.ArrayList<>(); // lista para salvar os kits com o filtro
+
 
         public GerenciadorKits() {
             kits = ArquivoKits.carregarKits();
@@ -80,8 +82,8 @@ public class Kits {
             // Quando selecionar um item na lista, carregar os dados nos campos
             kitListView.getSelectionModel().selectedIndexProperty().addListener((obs, oldIndex, newIndex) -> {
                 int index = newIndex.intValue();
-                if (index >= 0 && index < kits.size()) {
-                    Kit kit = kits.get(index);
+                if (index >= 0 && index < kitsFiltrados.size()) {
+                    Kit kit = kitsFiltrados.get(index); //Busca a lista filtrada especifica
                     nomeField.setText(kit.getNome());
                     categoriaField.setValue(kit.getCategoria());
                 }
@@ -104,11 +106,11 @@ public class Kits {
             Button editarBtn = new Button("Editar");
             editarBtn.setOnAction(e -> {
                 int index = kitListView.getSelectionModel().getSelectedIndex();
-                if (index >= 0) {
+                if (index >= 0 && index < kitsFiltrados.size()) {
+                    Kit kitSelecionado = kitsFiltrados.get(index);
                     String novoNome = nomeField.getText().trim();
                     String novaCategoria = categoriaField.getValue();
                     if (!novoNome.isEmpty() && novaCategoria != null) {
-                        Kit kitSelecionado = kits.get(index);
                         kitSelecionado.setNome(novoNome);
                         kitSelecionado.setCategoria(novaCategoria);
                         salvarEAtualizar();
@@ -121,8 +123,9 @@ public class Kits {
             Button excluirBtn = new Button("Excluir");
             excluirBtn.setOnAction(e -> {
                 int index = kitListView.getSelectionModel().getSelectedIndex();
-                if (index >= 0) {
-                    kits.remove(index);
+                if (index >= 0 && index < kitsFiltrados.size()) {
+                    Kit kitRemover = kitsFiltrados.get(index);
+                    kits.remove(kitRemover);
                     salvarEAtualizar();
                     nomeField.clear();
                     categoriaField.setValue(null);
@@ -149,10 +152,12 @@ public class Kits {
 
         private void atualizarLista() {
             kitListView.getItems().clear();
+            kitsFiltrados.clear();
             String filtro = categoriaComboBox.getValue();
             for (Kit kit : kits) {
                 if ("Todos".equals(filtro) || kit.getCategoria().equals(filtro)) {
                     kitListView.getItems().add(kit.getNome() + " (" + kit.getCategoria() + ")");
+                    kitsFiltrados.add(kit);
                 }
             }
         }
