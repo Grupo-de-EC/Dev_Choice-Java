@@ -60,9 +60,36 @@ public class Moderator extends Application {
         confirmarBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         Button excluirBtn = new Button("Excluir Perfil");
         excluirBtn.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-weight: bold;");
+        Button visualizarBtn = new Button("Visualizar Perfis");
+        visualizarBtn.setStyle("-fx-background-color: #00796B; -fx-text-fill: white; -fx-font-weight: bold;");
 
         HBox botoesEdicao = new HBox(10, confirmarBtn, excluirBtn);
+        visualizarBtn.setOnAction(ev -> {
+            List<Perfil> perfis = ArquivoPerfil.lerPerfis();
+            perfis.sort((p1, p2) -> p1.getNome().compareToIgnoreCase(p2.getNome()));
 
+            VBox listaBox = new VBox(10);
+            listaBox.setPadding(new Insets(20));
+            listaBox.setStyle("-fx-background-color: white;");
+
+            for (Perfil perfil : perfis) {
+                Label label = new Label("Nome: " + perfil.getNome() + " | Email: " + perfil.getEmail());
+                label.setStyle("-fx-text-fill: black; -fx-font-size: 14;");
+                listaBox.getChildren().add(label);
+            }
+
+            ScrollPane scroll = new ScrollPane(listaBox);
+            scroll.setFitToWidth(true);
+
+            Scene scene = new Scene(scroll, 400, 300);
+            Stage stage = new Stage();
+            stage.setTitle("Perfis Cadastrados");
+            stage.setScene(scene);
+            stage.show();
+        });
+
+        painelEdicao.getChildren().add(visualizarBtn);
+        
         BorderPane painelEditarPerfis = new BorderPane();
         painelEditarPerfis.setLeft(listaPerfis);
         painelEditarPerfis.setCenter(painelEdicao);
@@ -142,11 +169,21 @@ public class Moderator extends Application {
                 atualizarListaPerfis.run();
             });
 
+            Label nomeLabel = new Label("Nome:");
+            nomeLabel.setTextFill(Color.BLACK);
+
+            Label emailLabel = new Label("Email:");
+            emailLabel.setTextFill(Color.BLACK);
+
+            HBox botoesAcoes = new HBox(10, confirmarBtn, excluirBtn);
             painelEdicao.getChildren().addAll(
-                    new Label("Nome:"), nomeField,
-                    new Label("Email:"), emailField,
-                    new HBox(10, confirmarBtn, excluirBtn)
+                    nomeLabel, nomeField,
+                    emailLabel, emailField,
+                    botoesAcoes,
+                    visualizarBtn
             );
+
+
         });
 
         atualizarListaPerfis.run();
@@ -236,7 +273,21 @@ public class Moderator extends Application {
                 new Separator()
         );
 
-        StackPane centerWrapper = new StackPane(painelCentral);
+        VBox scrollContent = new VBox(painelCentral);
+        scrollContent.setAlignment(Pos.TOP_CENTER);
+        scrollContent.setPadding(new Insets(40)); // espaço interno opcional
+
+        ScrollPane scrollPane = new ScrollPane(scrollContent);
+
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        scrollPane.setPadding(new Insets(0)); // remove margens extra
+
+        StackPane centerWrapper = new StackPane(scrollPane);
+
         centerWrapper.setPadding(new Insets(40));
         centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3d8f, #2c4f99);");
 
