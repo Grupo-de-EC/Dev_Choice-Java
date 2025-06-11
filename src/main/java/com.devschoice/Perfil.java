@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.util.List;
 
-
 public class Perfil implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -33,9 +32,6 @@ public class Perfil implements Serializable {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-
-
-
     private void salvarDados() {
         List<Perfil> perfis = ArquivoPerfil.lerPerfis();
         boolean encontrado = false;
@@ -55,20 +51,8 @@ public class Perfil implements Serializable {
         ArquivoPerfil.salvarPerfis(perfis);
     }
 
-    public interface PerfilChangeListener {
-        void onPerfilChanged();
-    }
-
-    private transient PerfilChangeListener listener;
-
-
-
-
-
-    public void mostrarJanela() {
+    public void mostrarJanela(Runnable onPerfilAlterado) {
         Stage stage = new Stage();
-
-
 
         // Título
         Label titulo = new Label("Alterar Dados");
@@ -100,8 +84,8 @@ public class Perfil implements Serializable {
         );
         emailField.setMaxWidth(Double.MAX_VALUE);
 
-        // Botão Confirmar
-        Button confirmarButton = new Button("Confirmar Troca");
+        // Botões
+        Button confirmarButton = new Button("Confirmar");
         confirmarButton.setStyle(
                 "-fx-background-radius: 8;" +
                         "-fx-font-weight: bold;" +
@@ -109,8 +93,44 @@ public class Perfil implements Serializable {
                         "-fx-text-fill: white;"
         );
 
+        Button excluirButton = new Button("Excluir");
+        excluirButton.setStyle(
+                "-fx-background-radius: 8;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-color: linear-gradient(to right, #e53935, #b71c1c);" +
+                        "-fx-text-fill: white;"
+        );
+
+        HBox botoes = new HBox(10, confirmarButton, excluirButton);
+        botoes.setAlignment(Pos.CENTER);
+
+        confirmarButton.setOnAction(e -> {
+            String novoNome = nomeField.getText().trim();
+            String novoEmail = emailField.getText().trim();
+
+            if (novoNome.isEmpty() || novoEmail.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Nome e email não podem ser vazios.");
+                alert.showAndWait();
+                return;
+            }
+
+            this.nome = novoNome;
+            this.email = novoEmail;
+            salvarDados();
+            if (onPerfilAlterado != null) onPerfilAlterado.run();
+            stage.close();
+        });
+
+        excluirButton.setOnAction(e -> {
+            List<Perfil> perfis = ArquivoPerfil.lerPerfis();
+            perfis.removeIf(p -> p.equals(this));
+            ArquivoPerfil.salvarPerfis(perfis);
+            if (onPerfilAlterado != null) onPerfilAlterado.run();
+            stage.close();
+        });
+
         // Painel escuro central
-        VBox painelEscuro = new VBox(12, titulo, nomeLabel, nomeField, emailLabel, emailField, confirmarButton);
+        VBox painelEscuro = new VBox(12, titulo, nomeLabel, nomeField, emailLabel, emailField, botoes);
         painelEscuro.setAlignment(Pos.CENTER);
         painelEscuro.setPadding(new Insets(30));
         painelEscuro.setStyle("-fx-background-color: #141927; -fx-background-radius: 15;");
@@ -121,21 +141,9 @@ public class Perfil implements Serializable {
         centerWrapper.setPadding(new Insets(40));
         centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #0f1f4b, #1e3d8f);");
 
-        // Cena final
         Scene scene = new Scene(centerWrapper, 800, 600);
         stage.setTitle("Alterar Perfil");
         stage.setScene(scene);
-
-        // Ação do botão Confirmar
-        confirmarButton.setOnAction(e -> {
-            nome = nomeField.getText();
-            email = emailField.getText();
-            salvarDados();
-            if (listener != null) {
-                listener.onPerfilChanged();
-            }
-            stage.close();
-        });
 
         stage.show();
     }
@@ -209,6 +217,4 @@ public class Perfil implements Serializable {
     public int hashCode() {
         return email != null ? email.hashCode() : 0;
     }
-
-
 }

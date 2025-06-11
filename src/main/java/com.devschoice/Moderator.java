@@ -38,6 +38,7 @@ public class Moderator extends Application {
         painelCentral.setMaxWidth(600);
 
         // Sessão 1 - Perfil
+        // Sessão 1 - Perfil
         Label perfilTitulo = new Label("Perfis");
         perfilTitulo.setFont(new Font("Arial", 18));
         perfilTitulo.setTextFill(Color.web("#1e3d8f"));
@@ -46,24 +47,38 @@ public class Moderator extends Application {
         Button criarNovoPerfilBtn = new Button("Criar Novo Perfil");
         criarNovoPerfilBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
 
-        HBox botoesPerfil = new HBox(10, criarNovoPerfilBtn);
-        botoesPerfil.setAlignment(Pos.CENTER_LEFT);
+        Button modificarPerfilBtn = new Button("Modificar Perfil");
+        modificarPerfilBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;");
 
         ListView<Perfil> listaPerfis = new ListView<>();
-        listaPerfis.setPrefWidth(250);
+        listaPerfis.setPrefWidth(300);
 
-        VBox painelEdicao = new VBox(10);
-        painelEdicao.setPadding(new Insets(10));
-        painelEdicao.setStyle("-fx-background-color: #f0f0f0;");
+        Runnable atualizarListaPerfis = () -> {
+            List<Perfil> perfis = ArquivoPerfil.lerPerfis();
+            listaPerfis.getItems().setAll(perfis);
+            if (!perfis.isEmpty()) {
+                listaPerfis.getSelectionModel().selectFirst();
+            }
+        };
 
-        Button confirmarBtn = new Button("Confirmar Alteração");
-        confirmarBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
-        Button excluirBtn = new Button("Excluir Perfil");
-        excluirBtn.setStyle("-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-weight: bold;");
+        modificarPerfilBtn.setOnAction(e -> {
+            Perfil selecionado = listaPerfis.getSelectionModel().getSelectedItem();
+            if (selecionado == null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Selecione um perfil para modificar.");
+                alert.showAndWait();
+                return;
+            }
+            // Abre a janela da classe Perfil para editar o perfil selecionado
+            selecionado.mostrarJanela(atualizarListaPerfis);
+        });
+
+        criarNovoPerfilBtn.setOnAction(e -> Perfil.mostrarJanelaCriarNovoPerfil(atualizarListaPerfis));
+
+        HBox botoesPerfil = new HBox(10, criarNovoPerfilBtn, modificarPerfilBtn);
+        botoesPerfil.setAlignment(Pos.CENTER_LEFT);
+
         Button visualizarBtn = new Button("Visualizar Perfis");
         visualizarBtn.setStyle("-fx-background-color: #00796B; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        HBox botoesEdicao = new HBox(10, confirmarBtn, excluirBtn);
         visualizarBtn.setOnAction(ev -> {
             List<Perfil> perfis = ArquivoPerfil.lerPerfis();
             perfis.sort((p1, p2) -> p1.getNome().compareToIgnoreCase(p2.getNome()));
@@ -88,32 +103,10 @@ public class Moderator extends Application {
             stage.show();
         });
 
-        painelEdicao.getChildren().add(visualizarBtn);
-        
-        BorderPane painelEditarPerfis = new BorderPane();
-        painelEditarPerfis.setLeft(listaPerfis);
-        painelEditarPerfis.setCenter(painelEdicao);
+        VBox painelEditarPerfis = new VBox(10, listaPerfis, visualizarBtn);
         painelEditarPerfis.setPadding(new Insets(10));
         painelEditarPerfis.setPrefHeight(300);
         painelEditarPerfis.setStyle("-fx-border-color: rgba(100, 100, 150, 0.3); -fx-border-width: 1; -fx-background-color: white; -fx-background-radius: 10;");
-
-        Runnable atualizarListaPerfis = () -> {
-            List<Perfil> perfis = ArquivoPerfil.lerPerfis();
-            listaPerfis.getItems().clear();
-
-            if (perfis.isEmpty()) {
-                listaPerfis.setDisable(true);
-                painelEdicao.getChildren().setAll(new Label("Nenhum perfil salvo"));
-            } else {
-                listaPerfis.setDisable(false);
-                listaPerfis.getItems().setAll(perfis);
-                painelEdicao.getChildren().clear();
-                painelEdicao.getChildren().add(new Label("Nenhum perfil selecionado"));
-                listaPerfis.getSelectionModel().selectFirst();
-            }
-        };
-
-        atualizarListaPerfis.run();
 
         listaPerfis.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -127,63 +120,6 @@ public class Moderator extends Application {
                     setDisable("Nenhum perfil salvo".equals(item.getNome()));
                 }
             }
-        });
-
-        criarNovoPerfilBtn.setOnAction(e -> Perfil.mostrarJanelaCriarNovoPerfil(atualizarListaPerfis));
-
-        listaPerfis.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
-            painelEdicao.getChildren().clear();
-
-            if (newSel == null) {
-                painelEdicao.getChildren().add(new Label("Nenhum perfil selecionado"));
-                return;
-            }
-
-            String nomeOriginal = newSel.getNome();
-
-            TextField nomeField = new TextField(newSel.getNome());
-            TextField emailField = new TextField(newSel.getEmail());
-
-            confirmarBtn.setOnAction(ev -> {
-                String novoNome = nomeField.getText().trim();
-                String novoEmail = emailField.getText().trim();
-
-                List<Perfil> perfis = ArquivoPerfil.lerPerfis();
-
-                for (Perfil perfi : perfis) {
-                    if (perfi.getNome().equals(nomeOriginal)) {
-                        perfi.setNome(novoNome);
-                        perfi.setEmail(novoEmail);
-                        break;
-                    }
-                }
-
-                ArquivoPerfil.salvarPerfis(perfis);
-                atualizarListaPerfis.run();
-            });
-
-            excluirBtn.setOnAction(ev -> {
-                List<Perfil> perfis = ArquivoPerfil.lerPerfis();
-                perfis.removeIf(p -> p.equals(newSel));
-                ArquivoPerfil.salvarPerfis(perfis);
-                atualizarListaPerfis.run();
-            });
-
-            Label nomeLabel = new Label("Nome:");
-            nomeLabel.setTextFill(Color.BLACK);
-
-            Label emailLabel = new Label("Email:");
-            emailLabel.setTextFill(Color.BLACK);
-
-            HBox botoesAcoes = new HBox(10, confirmarBtn, excluirBtn);
-            painelEdicao.getChildren().addAll(
-                    nomeLabel, nomeField,
-                    emailLabel, emailField,
-                    botoesAcoes,
-                    visualizarBtn
-            );
-
-
         });
 
         atualizarListaPerfis.run();
