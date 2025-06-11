@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResponderFormulario extends Application {
+public class ResponderQuestionario extends Application {
     private List<TextField> respostas = new ArrayList<>();
     private List<Pergunta> perguntas;
 
@@ -34,7 +34,7 @@ public class ResponderFormulario extends Application {
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0.5, 0, 2);"
         );
 
-        Label titulo = new Label("Formulário");
+        Label titulo = new Label("Questionário");
         titulo.setStyle(
                 "-fx-font-size: 28px; " +
                         "-fx-font-weight: 700; " +
@@ -131,13 +131,13 @@ public class ResponderFormulario extends Application {
 
         Scene scene = new Scene(root, 520, 650);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Responder Formulário");
+        primaryStage.setTitle("Responder Questionário");
         primaryStage.show();
     }
 
     private List<Pergunta> carregarPerguntas() {
         List<Pergunta> perguntas = new ArrayList<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("formulario.dat"))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("questionario.dat"))) {
             Object obj = ois.readObject();
             if (obj instanceof List<?>) {
                 perguntas = (List<Pergunta>) obj;

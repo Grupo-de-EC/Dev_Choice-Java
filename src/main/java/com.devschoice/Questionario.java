@@ -1,7 +1,6 @@
 package com.devschoice;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Formulario {
+public class Questionario {
     private VBox formArea;
     private boolean modoEdicaoAtivo = false;
 
@@ -36,16 +35,16 @@ public class Formulario {
         Button adicionarCaixaSelecao = criarBotao("Adicionar Caixa de Seleção");
         Button adicionarListaSuspensa = criarBotao("Adicionar Lista Suspensa");
         Button editarQuestao = criarBotao("Editar Questão");
-        Button limparFormulario = criarBotao("Limpar Formulário");
-        Button salvarFormulario = criarBotao("Salvar");
+        Button limparQuestionario = criarBotao("Limpar Questionário");
+        Button salvarQuestionario = criarBotao("Salvar");
 
 
         controles.getChildren().addAll(
                 adicionarCampoTexto,
                 adicionarCaixaSelecao,
                 adicionarListaSuspensa,
-                limparFormulario,
-                salvarFormulario,
+                limparQuestionario,
+                salvarQuestionario,
                 editarQuestao
         );
 
@@ -101,10 +100,10 @@ public class Formulario {
             }
         });
 
-        limparFormulario.setOnAction(e -> {
+        limparQuestionario.setOnAction(e -> {
             Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
             alerta.setTitle("Confirmação");
-            alerta.setHeaderText("Tem certeza que deseja limpar o formulário?");
+            alerta.setHeaderText("Tem certeza que deseja limpar o questionário?");
             alerta.setContentText("Essa ação não pode ser desfeita.");
 
             Optional<ButtonType> resultado = alerta.showAndWait();
@@ -115,7 +114,7 @@ public class Formulario {
 
 
 
-        salvarFormulario.setOnAction(e -> salvarDados());
+        salvarQuestionario.setOnAction(e -> salvarDados());
 
         editarQuestao.setOnAction(e -> {
             modoEdicaoAtivo = !modoEdicaoAtivo;
@@ -129,12 +128,12 @@ public class Formulario {
         stage.setScene(scene);
         stage.show();
 
-        inicializarFormulario();  // <-- chamada correta agora que está fora do método
+        inicializarQuestionario();  // <-- chamada correta agora que está fora do método
     }
 
-    public void inicializarFormulario() {
+    public void inicializarQuestionario() {
         boolean carregado = false;
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("formulario.dat"))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("questionario.dat"))) {
             List<Pergunta> perguntasSalvas = (List<Pergunta>) ois.readObject();
             for (Pergunta p : perguntasSalvas) {
                 adicionarPergunta(p.getTitulo(), p.getTipo(), p.getOpcoes());
@@ -267,7 +266,7 @@ public class Formulario {
     }
 
     private void salvarDados() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("formulario.dat"))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("questionario.dat"))) {
             List<Pergunta> pergunta = new ArrayList<>();
             for (javafx.scene.Node grupo : formArea.getChildren()) {
                 if (grupo instanceof VBox vbox && vbox.getChildren().size() >= 2) {
@@ -300,7 +299,7 @@ public class Formulario {
                 }
             }
             oos.writeObject(pergunta);
-            new Alert(Alert.AlertType.INFORMATION, "Formulário salvo com sucesso!").showAndWait();
+            new Alert(Alert.AlertType.INFORMATION, "Questionário salvo com sucesso!").showAndWait();
         } catch (IOException e) {
             new Alert(Alert.AlertType.ERROR, "Erro ao salvar: " + e.getMessage()).showAndWait();
         }
