@@ -105,21 +105,13 @@ public class Moderator extends Application {
                     setDisable(false);
                 } else {
                     setText(item.getNome());
-                    if ("Nenhum perfil salvo".equals(item.getNome())) {
-                        setDisable(true);
-                    } else {
-                        setDisable(false);
-                    }
+                    setDisable("Nenhum perfil salvo".equals(item.getNome()));
                 }
             }
         });
 
         // Evento criar novo perfil
-        criarNovoPerfilBtn.setOnAction(e -> {
-            Perfil.mostrarJanelaCriarNovoPerfil(() -> {
-                atualizarListaPerfis.run();
-            });
-        });
+        criarNovoPerfilBtn.setOnAction(e -> Perfil.mostrarJanelaCriarNovoPerfil(atualizarListaPerfis));
 
         // Evento seleção perfil na lista
         listaPerfis.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -141,10 +133,10 @@ public class Moderator extends Application {
 
                 List<Perfil> perfis = ArquivoPerfil.lerPerfis();
 
-                for (int i = 0; i < perfis.size(); i++) {
-                    if (perfis.get(i).getNome().equals(nomeOriginal)) {  // compara pelo nome original
-                        perfis.get(i).setNome(novoNome);
-                        perfis.get(i).setEmail(novoEmail);
+                for (Perfil perfi : perfis) {
+                    if (perfi.getNome().equals(nomeOriginal)) {  // compara pelo nome original
+                        perfi.setNome(novoNome);
+                        perfi.setEmail(novoEmail);
                         break;
                     }
                 }

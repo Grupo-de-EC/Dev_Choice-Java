@@ -13,6 +13,7 @@ import java.util.List;
 
 
 public class Perfil implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String nome;
@@ -33,11 +34,7 @@ public class Perfil implements Serializable {
     public void setEmail(String email) { this.email = email; }
 
 
-    private void carregarDados() {
-        Perfil perfilCarregado = ArquivoPerfil.lerPerfil();
-        this.nome = perfilCarregado.getNome();
-        this.email = perfilCarregado.getEmail();
-    }
+
 
     private void salvarDados() {
         List<Perfil> perfis = ArquivoPerfil.lerPerfis();
@@ -65,9 +62,7 @@ public class Perfil implements Serializable {
     private transient PerfilChangeListener listener;
 
 
-    public void setPerfilChangeListener(PerfilChangeListener listener) {
-        this.listener = listener;
-    }
+
 
 
     public void mostrarJanela() {
@@ -206,8 +201,7 @@ public class Perfil implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Perfil)) return false;
-        Perfil perfil = (Perfil) o;
+        if (!(o instanceof Perfil perfil)) return false;
         return (email != null && email.equals(perfil.email));
     }
 

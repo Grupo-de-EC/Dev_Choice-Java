@@ -51,7 +51,7 @@ public class Kits {
         private final ComboBox<String> categoriaComboBox;  // filtro
         private final TextField nomeField;
         private final ComboBox<String> categoriaField;     // campo para adicionar/editar categoria
-        private List<Kit> kitsFiltrados = new java.util.ArrayList<>(); // lista para salvar os kits com o filtro
+        private final List<Kit> kitsFiltrados = new java.util.ArrayList<>(); // lista para salvar os kits com o filtro
 
 
         public GerenciadorKits() {
