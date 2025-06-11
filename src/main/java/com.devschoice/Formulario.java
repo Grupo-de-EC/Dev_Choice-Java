@@ -101,7 +101,19 @@ public class Formulario {
             }
         });
 
-        limparFormulario.setOnAction(e -> formArea.getChildren().clear());
+        limparFormulario.setOnAction(e -> {
+            Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
+            alerta.setTitle("Confirmação");
+            alerta.setHeaderText("Tem certeza que deseja limpar o formulário?");
+            alerta.setContentText("Essa ação não pode ser desfeita.");
+
+            Optional<ButtonType> resultado = alerta.showAndWait();
+            if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+                formArea.getChildren().clear();
+            }
+        });
+
+
 
         salvarFormulario.setOnAction(e -> salvarDados());
 
