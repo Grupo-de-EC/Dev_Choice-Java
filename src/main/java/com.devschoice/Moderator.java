@@ -178,12 +178,12 @@ public class Moderator extends Application {
         });
 
         // Sessão 3 - Responder Formulário
-        Label responderTitulo = new Label("Responder Formulário");
+        Label responderTitulo = new Label("Questionário");
         responderTitulo.setFont(new Font("Arial", 18));
         responderTitulo.setTextFill(Color.web("#1e3d8f"));
         responderTitulo.setStyle("-fx-font-weight: bold;");
 
-        Button responderFormularioBtn = new Button("Responder Formulário");
+        Button responderFormularioBtn = new Button("Responder Questionário");
         responderFormularioBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         responderFormularioBtn.setOnAction(e -> {
             ResponderFormulario responderApp = new ResponderFormulario();
