@@ -38,7 +38,6 @@ public class Moderator extends Application {
         painelCentral.setMaxWidth(600);
 
         // Sessão 1 - Perfil
-
         Label perfilTitulo = new Label("Perfis");
         perfilTitulo.setFont(new Font("Arial", 18));
         perfilTitulo.setTextFill(Color.web("#1e3d8f"));
@@ -50,16 +49,13 @@ public class Moderator extends Application {
         HBox botoesPerfil = new HBox(10, criarNovoPerfilBtn);
         botoesPerfil.setAlignment(Pos.CENTER_LEFT);
 
-        // ListView para navbar lateral
         ListView<Perfil> listaPerfis = new ListView<>();
         listaPerfis.setPrefWidth(250);
 
-        // Painel direito para edição do perfil selecionado
         VBox painelEdicao = new VBox(10);
         painelEdicao.setPadding(new Insets(10));
         painelEdicao.setStyle("-fx-background-color: #f0f0f0;");
 
-        // Adiciona um botão "Editar Perfil" no painel de edição para confirmar alterações
         Button confirmarBtn = new Button("Confirmar Alteração");
         confirmarBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         Button excluirBtn = new Button("Excluir Perfil");
@@ -67,7 +63,6 @@ public class Moderator extends Application {
 
         HBox botoesEdicao = new HBox(10, confirmarBtn, excluirBtn);
 
-        // Layout: painel com lista e painel edição sempre visíveis lado a lado
         BorderPane painelEditarPerfis = new BorderPane();
         painelEditarPerfis.setLeft(listaPerfis);
         painelEditarPerfis.setCenter(painelEdicao);
@@ -75,13 +70,11 @@ public class Moderator extends Application {
         painelEditarPerfis.setPrefHeight(300);
         painelEditarPerfis.setStyle("-fx-border-color: rgba(100, 100, 150, 0.3); -fx-border-width: 1; -fx-background-color: white; -fx-background-radius: 10;");
 
-        // Atualiza lista de perfis com mensagem caso vazio
         Runnable atualizarListaPerfis = () -> {
             List<Perfil> perfis = ArquivoPerfil.lerPerfis();
             listaPerfis.getItems().clear();
 
             if (perfis.isEmpty()) {
-                // Limpa a lista e desabilita o ListView
                 listaPerfis.setDisable(true);
                 painelEdicao.getChildren().setAll(new Label("Nenhum perfil salvo"));
             } else {
@@ -109,10 +102,8 @@ public class Moderator extends Application {
             }
         });
 
-        // Evento criar novo perfil
         criarNovoPerfilBtn.setOnAction(e -> Perfil.mostrarJanelaCriarNovoPerfil(atualizarListaPerfis));
 
-        // Evento seleção perfil na lista
         listaPerfis.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             painelEdicao.getChildren().clear();
 
@@ -133,7 +124,7 @@ public class Moderator extends Application {
                 List<Perfil> perfis = ArquivoPerfil.lerPerfis();
 
                 for (Perfil perfi : perfis) {
-                    if (perfi.getNome().equals(nomeOriginal)) {  // compara pelo nome original
+                    if (perfi.getNome().equals(nomeOriginal)) {
                         perfi.setNome(novoNome);
                         perfi.setEmail(novoEmail);
                         break;
@@ -160,7 +151,6 @@ public class Moderator extends Application {
 
         atualizarListaPerfis.run();
 
-        // Layout final: sessão perfil com título, botões e painel de perfis e edição
         VBox sessaoPerfil = new VBox(10, perfilTitulo, botoesPerfil, painelEditarPerfis);
         sessaoPerfil.setPadding(new Insets(0, 0, 10, 0));
 
@@ -177,27 +167,39 @@ public class Moderator extends Application {
             questionario.mostrar(new Stage());
         });
 
+        VBox sessaoQuestoes = new VBox(10, questTitulo, editarQuestoes);
+        sessaoQuestoes.setPadding(new Insets(10, 0, 10, 0));
+
         // Sessão 3 - Responder Formulário
         Label responderTitulo = new Label("Questionário");
         responderTitulo.setFont(new Font("Arial", 18));
         responderTitulo.setTextFill(Color.web("#1e3d8f"));
         responderTitulo.setStyle("-fx-font-weight: bold;");
 
-        Button responderQuestionarioBtn = new Button("Responder Questionário");
-        responderQuestionarioBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
-        responderQuestionarioBtn.setOnAction(e -> {
-            ResponderQuestionario responderApp = new ResponderQuestionario();
+        Button responderBtn = new Button("Responder Questionário");
+        responderBtn.setStyle("-fx-background-color: #1e88e5; -fx-text-fill: white; -fx-font-weight: bold;");
+        responderBtn.setOnAction(e -> {
             try {
-                responderApp.start(new Stage());
+                new ResponderQuestionario().start(new Stage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
 
-        VBox sessaoQuestoes = new VBox(10, questTitulo, editarQuestoes);
-        sessaoQuestoes.setPadding(new Insets(10, 0, 10, 0));
+        Button verRespostasBtn = new Button("Ver Respostas");
+        verRespostasBtn.setStyle("-fx-background-color: #1e88e5; -fx-text-fill: white; -fx-font-weight: bold;");
+        verRespostasBtn.setOnAction(e -> {
+            try {
+                new Respostas().start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
-        VBox sessaoResponder = new VBox(10, responderTitulo, responderQuestionarioBtn);
+        HBox questionarioBotoes = new HBox(15, responderBtn, verRespostasBtn);
+        questionarioBotoes.setAlignment(Pos.CENTER_LEFT);
+
+        VBox sessaoResponder = new VBox(10, responderTitulo, questionarioBotoes);
         sessaoResponder.setPadding(new Insets(10, 0, 10, 0));
 
         // Sessão 4 - Kits
@@ -215,8 +217,7 @@ public class Moderator extends Application {
                 alert.showAndWait();
                 return;
             }
-            String perfilId = perfilSelecionado.getNome(); // ou outro identificador único
-
+            String perfilId = perfilSelecionado.getNome();
             Kits.GerenciadorKits.mostrarJanela(perfilId);
         });
 
@@ -224,7 +225,6 @@ public class Moderator extends Application {
         sessaoKits.setAlignment(Pos.CENTER_LEFT);
         sessaoKits.setPadding(new Insets(20, 0, 0, 0));
 
-        // Adicionar todas as seções no painel branco
         painelCentral.getChildren().addAll(
                 sessaoPerfil,
                 new Separator(),
@@ -236,7 +236,6 @@ public class Moderator extends Application {
                 new Separator()
         );
 
-        // Layout central com padding e background
         StackPane centerWrapper = new StackPane(painelCentral);
         centerWrapper.setPadding(new Insets(40));
         centerWrapper.setStyle("-fx-background-color: linear-gradient(to bottom right, #1e3d8f, #2c4f99);");
