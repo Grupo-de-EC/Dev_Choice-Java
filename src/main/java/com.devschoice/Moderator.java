@@ -11,9 +11,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.util.List;
 
-
 public class Moderator extends Application {
-
 
     @Override
     public void start(Stage primaryStage) {
@@ -44,6 +42,7 @@ public class Moderator extends Application {
         Label perfilTitulo = new Label("Perfis");
         perfilTitulo.setFont(new Font("Arial", 18));
         perfilTitulo.setTextFill(Color.web("#1e3d8f"));
+        perfilTitulo.setStyle("-fx-font-weight: bold;");
 
         Button criarNovoPerfilBtn = new Button("Criar Novo Perfil");
         criarNovoPerfilBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -145,7 +144,6 @@ public class Moderator extends Application {
                 atualizarListaPerfis.run();
             });
 
-
             excluirBtn.setOnAction(ev -> {
                 List<Perfil> perfis = ArquivoPerfil.lerPerfis();
                 perfis.removeIf(p -> p.equals(newSel));
@@ -164,14 +162,13 @@ public class Moderator extends Application {
 
         // Layout final: sessão perfil com título, botões e painel de perfis e edição
         VBox sessaoPerfil = new VBox(10, perfilTitulo, botoesPerfil, painelEditarPerfis);
-        sessaoPerfil.setPadding(new Insets(10));
-
         sessaoPerfil.setPadding(new Insets(0, 0, 10, 0));
 
         // Sessão 2 - Questionários
         Label questTitulo = new Label("Gerenciar Questionários");
         questTitulo.setFont(new Font("Arial", 18));
         questTitulo.setTextFill(Color.web("#1e3d8f"));
+        questTitulo.setStyle("-fx-font-weight: bold;");
 
         Button editarQuestoes = new Button("Editar Questionários");
         editarQuestoes.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
@@ -180,10 +177,30 @@ public class Moderator extends Application {
             formulario.mostrar(new Stage());
         });
 
-        VBox sessaoQuestoes = new VBox(5, questTitulo, editarQuestoes);
+        // Sessão 3 - Responder Formulário
+        Label responderTitulo = new Label("Questionário");
+        responderTitulo.setFont(new Font("Arial", 18));
+        responderTitulo.setTextFill(Color.web("#1e3d8f"));
+        responderTitulo.setStyle("-fx-font-weight: bold;");
+
+        Button responderFormularioBtn = new Button("Responder Questionário");
+        responderFormularioBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        responderFormularioBtn.setOnAction(e -> {
+            ResponderFormulario responderApp = new ResponderFormulario();
+            try {
+                responderApp.start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        VBox sessaoQuestoes = new VBox(10, questTitulo, editarQuestoes);
         sessaoQuestoes.setPadding(new Insets(10, 0, 10, 0));
 
-        // Sessão 3 - Kits
+        VBox sessaoResponder = new VBox(10, responderTitulo, responderFormularioBtn);
+        sessaoResponder.setPadding(new Insets(10, 0, 10, 0));
+
+        // Sessão 4 - Kits
         Label kitsTitulo = new Label("Gerenciar Kits");
         kitsTitulo.setFont(new Font("Arial", 18));
         kitsTitulo.setTextFill(Color.web("#1e3d8f"));
@@ -217,6 +234,8 @@ public class Moderator extends Application {
                 sessaoPerfil,
                 new Separator(),
                 sessaoQuestoes,
+                new Separator(),
+                sessaoResponder,
                 new Separator(),
                 sessaoKits,
                 new Separator()
