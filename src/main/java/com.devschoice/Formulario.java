@@ -77,14 +77,30 @@ public class Formulario {
         adicionarCaixaSelecao.setOnAction(e -> {
             String titulo = solicitarTitulo("Caixa de Seleção");
             if (titulo != null && !titulo.trim().isEmpty()) {
-                adicionarPergunta(titulo, "checkbox", null);
+                TextInputDialog opcoesDialog = new TextInputDialog("Opção 1, Opção 2, Opção 3");
+                opcoesDialog.setTitle("Opções da Caixa de Seleção");
+                opcoesDialog.setHeaderText("Digite as opções separadas por vírgula:");
+                opcoesDialog.setContentText("Opções:");
+                Optional<String> resultadoOpcoes = opcoesDialog.showAndWait();
+                if (resultadoOpcoes.isPresent()) {
+                    String[] opcoes = resultadoOpcoes.get().split("\\s*,\\s*");
+                    adicionarPergunta(titulo, "checkbox", opcoes);
+                }
             }
         });
 
         adicionarListaSuspensa.setOnAction(e -> {
             String titulo = solicitarTitulo("Lista Suspensa");
             if (titulo != null && !titulo.trim().isEmpty()) {
-                adicionarPergunta(titulo, "combo", new String[]{"Opção 1", "Opção 2", "Opção 3"});
+                TextInputDialog opcoesDialog = new TextInputDialog("Opção 1, Opção 2, Opção 3");
+                opcoesDialog.setTitle("Opções da Lista Suspensa");
+                opcoesDialog.setHeaderText("Digite as opções separadas por vírgula:");
+                opcoesDialog.setContentText("Opções:");
+                Optional<String> resultadoOpcoes = opcoesDialog.showAndWait();
+                if (resultadoOpcoes.isPresent()) {
+                    String[] opcoes = resultadoOpcoes.get().split("\\s*,\\s*");
+                    adicionarPergunta(titulo, "combo", opcoes);
+                }
             }
         });
 
@@ -117,9 +133,15 @@ public class Formulario {
                 yield t;
             }
             case "checkbox" -> {
-                CheckBox cb = new CheckBox("Opção");
-                cb.setStyle(estiloCheckBox());
-                yield cb;
+                // Para checkbox, criar VBox com várias CheckBoxes (opções fixas ou recebidas)
+                VBox caixaOpcoes = new VBox(5);
+                String[] opcs = opcoes != null ? opcoes : new String[]{"Opção 1", "Opção 2", "Opção 3"};
+                for (String opcao : opcs) {
+                    CheckBox cb = new CheckBox(opcao);
+                    cb.setStyle(estiloCheckBox());
+                    caixaOpcoes.getChildren().add(cb);
+                }
+                yield caixaOpcoes;
             }
             case "combo" -> {
                 ComboBox<String> combo = new ComboBox<>();
@@ -134,6 +156,7 @@ public class Formulario {
         VBox grupo = criarLinhaPergunta(label, campo, tipo);
         formArea.getChildren().add(grupo);
     }
+
 
     private VBox criarLinhaPergunta(Label label, javafx.scene.Node campo, String tipoAtual) {
         label.setOnMouseClicked(event -> {
