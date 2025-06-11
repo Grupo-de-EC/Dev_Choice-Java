@@ -90,20 +90,20 @@ public class Kits {
                 }
             });
 
-            Button adicionarBtn = new Button("Adicionar");
-            adicionarBtn.setOnAction(e -> {
-                String nome = nomeField.getText().trim();
-                String categoria = categoriaField.getValue();
-                if (!nome.isEmpty() && categoria != null) {
-                    kits.add(new Kit(nome, categoria));
-                    salvarEAtualizar();
-                    nomeField.clear();
-                    categoriaField.setValue(null);
-                } else {
-                    alertAviso();
-                }
-            });
+            HBox botoes = getHBox();
 
+            HBox campos = new HBox(10, nomeField, categoriaField);
+            campos.setAlignment(Pos.CENTER);
+
+            VBox.setVgrow(kitListView, Priority.ALWAYS);
+            this.setSpacing(10);
+            this.setPadding(new Insets(20));
+            this.getChildren().addAll(titulo, categoriaComboBox, kitListView, campos, botoes);
+            this.setStyle("-fx-background-color: #f0f4f8; -fx-background-radius: 10;");
+        }
+
+        private HBox getHBox() {
+            Button adicionarBtn = getButton();
             Button editarBtn = new Button("Editar");
             editarBtn.setOnAction(e -> {
                 int index = kitListView.getSelectionModel().getSelectedIndex();
@@ -121,6 +121,27 @@ public class Kits {
                 }
             });
 
+            return getHBox(adicionarBtn, editarBtn);
+        }
+
+        private Button getButton() {
+            Button adicionarBtn = new Button("Adicionar");
+            adicionarBtn.setOnAction(e -> {
+                String nome = nomeField.getText().trim();
+                String categoria = categoriaField.getValue();
+                if (!nome.isEmpty() && categoria != null) {
+                    kits.add(new Kit(nome, categoria));
+                    salvarEAtualizar();
+                    nomeField.clear();
+                    categoriaField.setValue(null);
+                } else {
+                    alertAviso();
+                }
+            });
+            return adicionarBtn;
+        }
+
+        private HBox getHBox(Button adicionarBtn, Button editarBtn) {
             Button excluirBtn = new Button("Excluir");
             excluirBtn.setOnAction(e -> {
                 int index = kitListView.getSelectionModel().getSelectedIndex();
@@ -135,15 +156,7 @@ public class Kits {
 
             HBox botoes = new HBox(10, adicionarBtn, editarBtn, excluirBtn);
             botoes.setAlignment(Pos.CENTER);
-
-            HBox campos = new HBox(10, nomeField, categoriaField);
-            campos.setAlignment(Pos.CENTER);
-
-            VBox.setVgrow(kitListView, Priority.ALWAYS);
-            this.setSpacing(10);
-            this.setPadding(new Insets(20));
-            this.getChildren().addAll(titulo, categoriaComboBox, kitListView, campos, botoes);
-            this.setStyle("-fx-background-color: #f0f4f8; -fx-background-radius: 10;");
+            return botoes;
         }
 
         private void salvarEAtualizar() {
