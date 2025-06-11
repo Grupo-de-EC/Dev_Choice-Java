@@ -52,10 +52,11 @@ public class Kits {
         private final TextField nomeField;
         private final ComboBox<String> categoriaField;     // campo para adicionar/editar categoria
         private final List<Kit> kitsFiltrados = new java.util.ArrayList<>(); // lista para salvar os kits com o filtro
+        private final String perfilId;
 
-
-        public GerenciadorKits() {
-            kits = ArquivoKits.carregarKits();
+        public GerenciadorKits(String perfilId) {
+            this.perfilId = perfilId;
+            kits = ArquivoKits.carregarKits(perfilId);
 
             Label titulo = new Label("Gerenciar Kits");
             titulo.setFont(Font.font("Arial", 20));
@@ -146,7 +147,7 @@ public class Kits {
         }
 
         private void salvarEAtualizar() {
-            ArquivoKits.salvarKits(kits);
+            ArquivoKits.salvarKits(kits, perfilId);
             atualizarLista();
         }
 
@@ -171,11 +172,11 @@ public class Kits {
         }
 
         // Método estático para abrir a janela de gerenciamento — pode continuar, se quiser
-        public static void mostrarJanela() {
+        public static void mostrarJanela(String perfilId) {
             Stage stage = new Stage();
-            GerenciadorKits gerenciador = new GerenciadorKits();
+            GerenciadorKits gerenciador = new GerenciadorKits(perfilId);
             Scene scene = new Scene(gerenciador, 600, 400);
-            stage.setTitle("Gerenciador de Kits");
+            stage.setTitle("Gerenciador de Kits - Perfil: " + perfilId);
             stage.setScene(scene);
             stage.show();
         }

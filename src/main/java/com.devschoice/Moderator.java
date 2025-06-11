@@ -197,8 +197,15 @@ public class Moderator extends Application {
                         "-fx-background-radius: 8;"
         );
         editarKits.setOnAction(e -> {
-            Kits kits = new Kits();
-            Kits.GerenciadorKits.mostrarJanela();
+            Perfil perfilSelecionado = listaPerfis.getSelectionModel().getSelectedItem();
+            if (perfilSelecionado == null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Selecione um perfil antes de editar os kits.");
+                alert.showAndWait();
+                return;
+            }
+            String perfilId = perfilSelecionado.getNome(); // ou outro identificador único
+
+            Kits.GerenciadorKits.mostrarJanela(perfilId);
         });
 
         VBox sessaoKits = new VBox(10, kitsTitulo, editarKits);
