@@ -173,8 +173,8 @@ public class Moderator extends Application {
         Button editarQuestoes = new Button("Editar Questionários");
         editarQuestoes.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
         editarQuestoes.setOnAction(e -> {
-            Formulario formulario = new Formulario();
-            formulario.mostrar(new Stage());
+            Questionario questionario = new Questionario();
+            questionario.mostrar(new Stage());
         });
 
         // Sessão 3 - Responder Formulário
@@ -183,10 +183,10 @@ public class Moderator extends Application {
         responderTitulo.setTextFill(Color.web("#1e3d8f"));
         responderTitulo.setStyle("-fx-font-weight: bold;");
 
-        Button responderFormularioBtn = new Button("Responder Questionário");
-        responderFormularioBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
-        responderFormularioBtn.setOnAction(e -> {
-            ResponderFormulario responderApp = new ResponderFormulario();
+        Button responderQuestionarioBtn = new Button("Responder Questionário");
+        responderQuestionarioBtn.setStyle("-fx-background-color: #357ae8; -fx-text-fill: white; -fx-font-weight: bold;");
+        responderQuestionarioBtn.setOnAction(e -> {
+            ResponderQuestionario responderApp = new ResponderQuestionario();
             try {
                 responderApp.start(new Stage());
             } catch (Exception ex) {
@@ -197,7 +197,7 @@ public class Moderator extends Application {
         VBox sessaoQuestoes = new VBox(10, questTitulo, editarQuestoes);
         sessaoQuestoes.setPadding(new Insets(10, 0, 10, 0));
 
-        VBox sessaoResponder = new VBox(10, responderTitulo, responderFormularioBtn);
+        VBox sessaoResponder = new VBox(10, responderTitulo, responderQuestionarioBtn);
         sessaoResponder.setPadding(new Insets(10, 0, 10, 0));
 
         // Sessão 4 - Kits
@@ -207,12 +207,7 @@ public class Moderator extends Application {
         kitsTitulo.setStyle("-fx-font-weight: bold;");
 
         Button editarKits = new Button("Editar Kits");
-        editarKits.setStyle(
-                "-fx-background-color: linear-gradient(to right, #4a90e2, #357ae8);" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 8;"
-        );
+        editarKits.setStyle("-fx-background-color: linear-gradient(to right, #4a90e2, #357ae8); -fx-text-fill: white; -fx-font-weight: bold;");
         editarKits.setOnAction(e -> {
             Perfil perfilSelecionado = listaPerfis.getSelectionModel().getSelectedItem();
             if (perfilSelecionado == null) {
