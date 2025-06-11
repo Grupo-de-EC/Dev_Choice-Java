@@ -36,8 +36,9 @@ public class Formulario {
         Button adicionarCaixaSelecao = criarBotao("Adicionar Caixa de Seleção");
         Button adicionarListaSuspensa = criarBotao("Adicionar Lista Suspensa");
         Button editarQuestao = criarBotao("Editar Questão");
-        Button salvarFormulario = criarBotao("Salvar");
         Button limparFormulario = criarBotao("Limpar Formulário");
+        Button salvarFormulario = criarBotao("Salvar");
+
 
         controles.getChildren().addAll(
                 adicionarCampoTexto,
@@ -62,10 +63,6 @@ public class Formulario {
         ScrollPane scrollPane = new ScrollPane(formArea);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background: transparent; -fx-padding: 10;");
-
-        adicionarQuestaoFixaTexto("Nome do seu projeto:");
-        adicionarQuestaoFixaCombo("Nivel de Experiencia:", new String[]{"Iniciante", "Intermediário", "Avançado"});
-        adicionarQuestaoFixaCombo("Tipo do Projeto:", new String[]{"web", "mobile", "desktop", "iot", "jogo", "analise", "outros"});
 
         adicionarCampoTexto.setOnAction(e -> {
             String titulo = solicitarTitulo("Campo de Texto");
@@ -119,6 +116,27 @@ public class Formulario {
         Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
         stage.show();
+
+        inicializarFormulario();  // <-- chamada correta agora que está fora do método
+    }
+
+    public void inicializarFormulario() {
+        boolean carregado = false;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("formulario.dat"))) {
+            List<Pergunta> perguntasSalvas = (List<Pergunta>) ois.readObject();
+            for (Pergunta p : perguntasSalvas) {
+                adicionarPergunta(p.getTitulo(), p.getTipo(), p.getOpcoes());
+            }
+            carregado = true;
+        } catch (Exception e) {
+            // Ignora erro
+        }
+
+        if (!carregado) {
+            adicionarQuestaoFixaTexto("Nome do seu projeto:");
+            adicionarQuestaoFixaCombo("Nivel de Experiencia:", new String[]{"Iniciante", "Intermediário", "Avançado"});
+            adicionarQuestaoFixaCombo("Tipo do Projeto:", new String[]{"web", "mobile", "desktop", "iot", "jogo", "analise", "outros"});
+        }
     }
 
     private void adicionarPergunta(String titulo, String tipo, String[] opcoes) {
@@ -238,21 +256,38 @@ public class Formulario {
 
     private void salvarDados() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("formulario.dat"))) {
-            List<String> dados = new ArrayList<>();
+            List<Pergunta> pergunta = new ArrayList<>();
             for (javafx.scene.Node grupo : formArea.getChildren()) {
                 if (grupo instanceof VBox vbox && vbox.getChildren().size() >= 2) {
+                    Label label = (Label)((HBox)vbox.getChildren().get(0)).getChildren().get(0);
+                    String titulo = label.getText();
                     javafx.scene.Node campo = vbox.getChildren().get(1);
-                    if (campo instanceof TextField textField) {
-                        dados.add("Texto: " + textField.getText());
-                    } else if (campo instanceof CheckBox checkBox) {
-                        dados.add("Checkbox: " + checkBox.isSelected());
-                    } else if (campo instanceof ComboBox<?> comboBox) {
-                        Object selecionado = comboBox.getSelectionModel().getSelectedItem();
-                        dados.add("Combo: " + (selecionado == null ? "" : selecionado.toString()));
+
+                    String tipo = "texto";
+                    String[] opcoes = null;
+
+                    if (campo instanceof TextField) {
+                        tipo = "texto";
+                    } else if (campo instanceof VBox) { // checkbox (VBox com CheckBoxes)
+                        tipo = "checkbox";
+                        VBox vboxCheckbox = (VBox) campo;
+                        List<String> opcs = new ArrayList<>();
+                        for (javafx.scene.Node cbNode : vboxCheckbox.getChildren()) {
+                            if (cbNode instanceof CheckBox cb) {
+                                opcs.add(cb.getText());
+                            }
+                        }
+                        opcoes = opcs.toArray(new String[0]);
+                    } else if (campo instanceof ComboBox<?>) {
+                        tipo = "combo";
+                        ComboBox<?> combo = (ComboBox<?>) campo;
+                        opcoes = combo.getItems().toArray(new String[0]);
                     }
+
+                    pergunta.add(new Pergunta(titulo, tipo, opcoes));
                 }
             }
-            oos.writeObject(dados);
+            oos.writeObject(pergunta);
             new Alert(Alert.AlertType.INFORMATION, "Formulário salvo com sucesso!").showAndWait();
         } catch (IOException e) {
             new Alert(Alert.AlertType.ERROR, "Erro ao salvar: " + e.getMessage()).showAndWait();
