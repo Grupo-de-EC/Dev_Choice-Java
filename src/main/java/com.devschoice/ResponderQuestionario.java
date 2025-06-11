@@ -149,14 +149,16 @@ public class ResponderQuestionario extends Application {
     }
 
     private void salvarRespostas() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("respostas.txt", true))) {
-            for (int i = 0; i < respostas.size(); i++) {
-                String perguntaTexto = (i < perguntas.size()) ? perguntas.get(i).getTitulo() : "Pergunta " + (i + 1);
-                writer.write(perguntaTexto + ": " + respostas.get(i).getText());
-                writer.newLine();
-            }
-            writer.write("------");
-            writer.newLine();
+        List<ArquivoQuestionario> listaRespostas = new ArrayList<>();
+
+        for (int i = 0; i < respostas.size(); i++) {
+            String perguntaTexto = (i < perguntas.size()) ? perguntas.get(i).getTitulo() : "Pergunta " + (i + 1);
+            String respostaTexto = respostas.get(i).getText();
+            listaRespostas.add(new ArquivoQuestionario(perguntaTexto, respostaTexto));
+        }
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("respostas.dat"))) {
+            oos.writeObject(listaRespostas);
         } catch (IOException e) {
             e.printStackTrace();
         }
