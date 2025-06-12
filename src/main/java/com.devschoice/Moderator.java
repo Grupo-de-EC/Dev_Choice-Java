@@ -38,7 +38,6 @@ public class Moderator extends Application {
         painelCentral.setMaxWidth(600);
 
         // Sessão 1 - Perfil
-        // Sessão 1 - Perfil
         Label perfilTitulo = new Label("Perfis");
         perfilTitulo.setFont(new Font("Arial", 18));
         perfilTitulo.setTextFill(Color.web("#1e3d8f"));
@@ -176,12 +175,12 @@ public class Moderator extends Application {
         sessaoResponder.setPadding(new Insets(10, 0, 10, 0));
 
         // Sessão 4 - Kits
-        Label kitsTitulo = new Label("Gerenciar Kits");
+        Label kitsTitulo = new Label("Kits");
         kitsTitulo.setFont(new Font("Arial", 18));
         kitsTitulo.setTextFill(Color.web("#1e3d8f"));
         kitsTitulo.setStyle("-fx-font-weight: bold;");
 
-        Button editarKits = new Button("Editar Kits");
+        Button editarKits = new Button("Gerenciar Kits");
         editarKits.setStyle("-fx-background-color: linear-gradient(to right, #4a90e2, #357ae8); -fx-text-fill: white; -fx-font-weight: bold;");
         editarKits.setOnAction(e -> {
             Perfil perfilSelecionado = listaPerfis.getSelectionModel().getSelectedItem();
@@ -194,7 +193,25 @@ public class Moderator extends Application {
             Kits.GerenciadorKits.mostrarJanela(perfilId);
         });
 
-        VBox sessaoKits = new VBox(10, kitsTitulo, editarKits);
+        Button visualizarKits = new Button("Visualizar Kits");
+        visualizarKits.setStyle("-fx-background-color: #00796B; -fx-text-fill: white; -fx-font-weight: bold;");
+        visualizarKits.setOnAction(e -> {
+            Perfil perfilSelecionado = listaPerfis.getSelectionModel().getSelectedItem();
+            if (perfilSelecionado == null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Selecione um perfil antes de visualizar os kits.");
+                alert.showAndWait();
+                return;
+            }
+            String perfilId = perfilSelecionado.getNome();
+            VisualizadorKits.mostrarJanela(perfilId); // ← You'll need to implement this
+        });
+
+        HBox botoesKits = new HBox(10, editarKits, visualizarKits);
+        botoesKits.setAlignment(Pos.CENTER_LEFT);
+
+        VBox sessaoKits = new VBox(10, kitsTitulo, botoesKits);
+        sessaoKits.setAlignment(Pos.CENTER_LEFT);
+        sessaoKits.setPadding(new Insets(20, 0, 0, 0));
         sessaoKits.setAlignment(Pos.CENTER_LEFT);
         sessaoKits.setPadding(new Insets(20, 0, 0, 0));
 
