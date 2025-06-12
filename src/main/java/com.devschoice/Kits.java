@@ -62,7 +62,7 @@ public class Kits {
                     "Projeto com hardware / IoT",
                     "Outros"
             );
-            categoriaComboBox.setValue("Visualizar Todos");
+            categoriaComboBox.setValue("Todos");
 
             // When categoriaComboBox changes AND no Kit selected, filter list
             categoriaComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -84,7 +84,7 @@ public class Kits {
                     categoriaComboBox.setValue(kit.getCategoria());
                 } else {
                     nomeField.clear();
-                    categoriaComboBox.setValue("Visualizar Todos");
+                    categoriaComboBox.setValue("Todos");
                 }
             });
 
@@ -108,11 +108,11 @@ public class Kits {
             adicionarBtn.setOnAction(e -> {
                 String nome = nomeField.getText().trim();
                 String categoria = categoriaComboBox.getValue();
-                if (!nome.isEmpty() && categoria != null && !"Visualizar Todos".equals(categoria)) {
+                if (!nome.isEmpty() && categoria != null && !"Todos".equals(categoria)) {
                     kits.add(new Kit(nome, categoria));
                     salvarEAtualizar();
                     nomeField.clear();
-                    categoriaComboBox.setValue("Visualizar Todos");
+                    categoriaComboBox.setValue("Todos");
                     kitListView.getSelectionModel().clearSelection();
                 } else {
                     alertAviso();
@@ -127,7 +127,7 @@ public class Kits {
                     Kit kitSelecionado = kitsFiltrados.get(index);
                     String novoNome = nomeField.getText().trim();
                     String novaCategoria = categoriaComboBox.getValue();
-                    if (!novoNome.isEmpty() && novaCategoria != null && !"Visualizar Todos".equals(novaCategoria)) {
+                    if (!novoNome.isEmpty() && novaCategoria != null && !"Todos".equals(novaCategoria)) {
                         kitSelecionado.setNome(novoNome);
                         kitSelecionado.setCategoria(novaCategoria);
                         salvarEAtualizar();
@@ -166,7 +166,7 @@ public class Kits {
             kitsFiltrados.clear();
             String filtro = categoriaComboBox.getValue();
             for (Kit kit : kits) {
-                if ("Visualizar Todos".equals(filtro) || kit.getCategoria().equals(filtro)) {
+                if ("Todos".equals(filtro) || kit.getCategoria().equals(filtro)) {
                     kitListView.getItems().add(kit.getNome() + " (" + kit.getCategoria() + ")");
                     kitsFiltrados.add(kit);
                 }
@@ -177,7 +177,7 @@ public class Kits {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Aviso");
             alert.setHeaderText(null);
-            alert.setContentText("Preencha o nome e selecione uma categoria válida (não 'Visualizar Todos').");
+            alert.setContentText("Preencha o nome e selecione uma categoria válida (não 'Todos').");
             alert.showAndWait();
         }
 
